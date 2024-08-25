@@ -7,7 +7,8 @@ import (
 	"os"
 
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
-	"github.com/gorilla/mux"
+	router "github.com/ErdajtSopjani/LikeMe_API/routes"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -68,17 +69,7 @@ func Run() {
 	}
 	log.Printf("Database connection established")
 
-	err = http.ListenAndServe(addr, router(db))
+	err = http.ListenAndServe(addr, router.Routes(&app, db))
 	log.Fatal(err)
 
-}
-
-func router(db *gorm.DB) http.Handler {
-	r := mux.NewRouter()
-
-	r.HandleFunc("/api/v1/users", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", "users")
-	})
-
-	return r
 }

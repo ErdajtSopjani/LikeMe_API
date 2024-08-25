@@ -1,20 +1,23 @@
-package main
+package routes
 
 import (
 	"net/http"
 
-	"github.com/ErdajtSopjani/LikeMe_API/src/pkg/config"
+	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"gorm.io/gorm"
 )
 
-func routes(app *config.AppConfig) http.Handler {
+func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
-	mux.Use(NoSurf)
+	mux.Use(_middleware.NoSurf(app.IsProd))
 
 	mux.Get("/is_running", greeting())
+
 	return mux
 }
 

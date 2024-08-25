@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"github.com/justinas/nosurf"
@@ -6,14 +6,16 @@ import (
 )
 
 // NoSurf adds CSRF protection to all POST requests
-func NoSurf(next http.Handler) http.Handler {
-	csrfHandler := nosurf.New(next)
+func NoSurf(isProd bool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		csrfHandler := nosurf.New(next)
 
-	csrfHandler.SetBaseCookie(http.Cookie{
-		HttpOnly: true,
-		Path:     "/",
-		Secure:   app.IsProd,
-		SameSite: http.SameSiteLaxMode,
-	})
-	return csrfHandler
+		csrfHandler.SetBaseCookie(http.Cookie{
+			HttpOnly: true,
+			Path:     "/",
+			Secure:   isProd, // Conditionally set the Secure flag based on the environment
+			SameSite: http.SameSiteLaxMode,
+		})
+		return csrfHandler
+	}
 }
