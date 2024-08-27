@@ -1,8 +1,11 @@
 package middleware
 
 import (
-	"github.com/justinas/nosurf"
+	"log"
 	"net/http"
+
+	"github.com/justinas/nosurf"
+	"gorm.io/gorm"
 )
 
 // NoSurf adds CSRF protection to all POST requests
@@ -21,5 +24,21 @@ func NoSurf(isProd bool) func(next http.Handler) http.Handler {
 			SameSite: http.SameSiteLaxMode,
 		})
 		return csrfHandler
+	}
+}
+
+func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			is_valid := db.Select("*").Where("users.token = ?", r.Header.Get("Authorization")).Error
+
+			if is_valid != nil {
+				log.Fatal("Invalid token")
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			println(db.Select("user").Where("users.token = ?", r.Header.Get("Authorization")))
+			next.ServeHTTP(w, r)
+		})
 	}
 }

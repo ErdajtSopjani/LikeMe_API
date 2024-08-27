@@ -46,7 +46,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Send an email confirmation
-		// email.SendConfirmation(user.Email)
+		// SendConfirmation(user.Email, user.Token)
 
 		// Respond with the new user
 		w.Header().Set("Content-Type", "application/json")
