@@ -3,8 +3,9 @@ package routes
 import (
 	"net/http"
 
-	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
+	// _middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
@@ -14,9 +15,10 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
-	mux.Use(_middleware.NoSurf(app.IsProd))
+	// mux.Use(_middleware.NoSurf(app.IsProd))
 
 	mux.Get("/is_running", greeting())
+	mux.Post("/api/v1/register", handlers.RegisterUser(db))
 
 	return mux
 }

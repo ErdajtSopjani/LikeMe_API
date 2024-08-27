@@ -43,6 +43,8 @@ func initDB() (*gorm.DB, error) {
 				dbHost, dbPort, dbUser, dbName, dbPassword, dbSSLMode)),
 		&gorm.Config{})
 
+	// print all tables in the database
+	fmt.Println(db.Migrator().GetTables())
 	return db, err
 }
 
