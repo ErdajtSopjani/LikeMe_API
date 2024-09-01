@@ -18,10 +18,8 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	mux.Use(middleware.Recoverer)
 
-	// TODO: use NoSurf in prod environment.
-	// mux.Use(_middleware.NoSurf(app.IsProd))
+	mux.Use(_middleware.NoSurf(app.IsProd))
 
-	// TODO: use VerifyToken in every request except for /api/v1/register
 	mux.Use(_middleware.VerifyToken(db))
 
 	mux.Get("/is_running", greeting())

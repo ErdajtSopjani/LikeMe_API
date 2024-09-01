@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var app config.AppConfig
@@ -22,7 +23,7 @@ func init() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file", err)
+		log.Fatal("Error loading .env file", err)
 	}
 }
 
@@ -43,6 +44,10 @@ func initDB() (*gorm.DB, error) {
 				dbHost, dbPort, dbUser, dbName, dbPassword, dbSSLMode)),
 		&gorm.Config{})
 
+	// if in production disable the logger
+	if app.IsProd {
+		db.Logger = logger.Default.LogMode(logger.Silent)
+	}
 	// print all tables in the database
 	fmt.Println(db.Migrator().GetTables())
 	return db, err

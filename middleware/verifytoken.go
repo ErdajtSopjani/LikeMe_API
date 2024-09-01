@@ -12,10 +12,16 @@ import (
 func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			token := r.Header.Get("Authorization")              // get token from request header
-			registerRequest := r.URL.Path == "/api/v1/register" // check if request is register request
+			token := r.Header.Get("Authorization")
 
-			if token == "" && !registerRequest { // if token is missing and not register request
+			// if its a register request continue to the next handler
+			if r.URL.Path == "/api/v1/register" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// if no token is found
+			if token == "" {
 				log.Println("Unauthorized request from: ", r.RemoteAddr)
 				http.Error(w, "Unauthorized: Token is missing", http.StatusUnauthorized)
 				return
@@ -30,27 +36,21 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 
 			// query database to check if token exists
 			err := db.Select("token", "token_expires_at").Where("token = ?", token).First(&user).Error
-
-			if err != nil && !registerRequest { // if token doesn't exist
-
-				// token not found
-				if err == gorm.ErrRecordNotFound {
+			if err != nil {
+				if err == gorm.ErrRecordNotFound { // if token is not found
 					log.Println("Unauthorized request from: ", r.RemoteAddr)
 					http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
+				} else if user.TokenExpiresAt.Before(time.Now()) { // if token is expired
+					http.Error(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
 				} else {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 					log.Fatal("failed to query database:", err)
 				}
-
-				// check if token is expired
-				if user.TokenExpiresAt.Before(time.Now()) {
-					http.Error(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
-				}
 				return
 			}
 
-			// if token is valid and not expired proceed
-			next.ServeHTTP(w, r)
+			// if no errors are found that means the token is valid
+			next.ServeHTTP(w, r) // continue to the next handler
 		})
 	}
 }

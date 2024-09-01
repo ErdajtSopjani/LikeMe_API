@@ -1,6 +1,9 @@
 package handlers
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"log"
+)
 
 // CheckUnique checks if any value is unique in a table
 func CheckUnique(db *gorm.DB, column string, value any) bool {
@@ -9,12 +12,16 @@ func CheckUnique(db *gorm.DB, column string, value any) bool {
 	}
 	var user User
 
-	/// query database to check if the value is unique
-	// if no record is found, database returns an error
-	if err := db.Select("id").Where(column+" = ?", value).First(&user).Error; err == nil {
+	// check for the value in the database
+	if err := db.Select("id").Where(column+" = ?", value).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound { // if the record is not found an error gets returned
+			return true
+		}
+		// if the error is not a not found error
+		log.Fatalf("Error checking uniqueness for %s: %v\n", column, err)
 		return false
 	}
 
-	// if database doesnt return an error that means the record was found
-	return true
+	// if no error is returned it means the value was found
+	return false
 }
