@@ -5,23 +5,29 @@ import (
 
 	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
+
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
+	userHandlers "github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/users"
 )
 
 func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
-	mux.Use(_middleware.VerifyToken(db))
+
+	// TODO: use NoSurf in prod environment.
 	// mux.Use(_middleware.NoSurf(app.IsProd))
+
+	// TODO: use VerifyToken in every request except for /api/v1/register
+	mux.Use(_middleware.VerifyToken(db))
 
 	mux.Get("/is_running", greeting())
 
-	mux.Put("/api/v1/register", handlers.RegisterUser(db))
-	// mux.Post("/api/v1/verify", handlers.VerifyUser(db))
+	mux.Post("/api/v1/register", handlers.RegisterUser(db))
+	mux.Post("/api/v1/follow", userHandlers.FollowAccount(db))
 
 	return mux
 }

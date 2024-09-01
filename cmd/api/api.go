@@ -73,5 +73,4 @@ func Run() {
 
 	err = http.ListenAndServe(addr, router.Routes(&app, db))
 	log.Fatal(err)
-
 }

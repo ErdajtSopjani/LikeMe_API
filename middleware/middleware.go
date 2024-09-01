@@ -7,11 +7,14 @@ import (
 
 // NoSurf adds CSRF protection to all POST requests
 func NoSurf(isProd bool) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		if !isProd { // skip csrf protection in development
+	if !isProd { // skip crsf protection if in development mode
+		println("skipping csrf protection")
+		return func(next http.Handler) http.Handler {
 			return next
 		}
+	}
 
+	return func(next http.Handler) http.Handler {
 		csrfHandler := nosurf.New(next)
 
 		csrfHandler.SetBaseCookie(http.Cookie{

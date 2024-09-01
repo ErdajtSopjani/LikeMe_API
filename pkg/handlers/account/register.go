@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterUserInput is the struct for the input of the RegisterUser handler
-type RegisterUserInput struct {
+// RegisterRequest is the struct for the req of the RegisterUser handler
+type RegisterRequest struct {
 	Email     string `json:"email"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name"`
@@ -21,22 +21,31 @@ type RegisterUserInput struct {
 // RegisterUser is a handler for registering a new user and sending an email confirmation
 func RegisterUser(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Parse the input from the request body
-		var input RegisterUserInput
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-			log.Fatal("failed to decode request body:", err)
+		// Parse the req from the request body
+		var req RegisterRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			log.Fatal("failed to decode req:", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		// Create a new user in the database
 		user := handlers.User{
-			Email:     input.Email,
-			Username:  input.Username,
-			FirstName: input.FirstName,
-			LastName:  input.LastName,
-			Bio:       input.Bio,
+			Email:     req.Email,
+			Username:  req.Username,
+			FirstName: req.FirstName,
+			LastName:  req.LastName,
+			Bio:       req.Bio,
 			Token:     GenerateToken(),
+		}
+
+		if !CheckUnique(db, "username", user.Username) { // if username exists
+			http.Error(w, "Username already taken", http.StatusBadRequest)
+			return
+		}
+		if !CheckUnique(db, "email", user.Email) { // if email exists
+			http.Error(w, "Email already taken", http.StatusBadRequest)
+			return
 		}
 
 		if err := db.Create(&user).Error; err != nil {
@@ -46,7 +55,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// Send an email confirmation
-		// SendConfirmation(user.Email, user.Token)
+		// email.SendConfirmation(user.Email)
 
 		// Respond with the new user
 		w.Header().Set("Content-Type", "application/json")
