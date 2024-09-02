@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers"
 	"gorm.io/gorm"
@@ -19,24 +18,6 @@ type CreateProfileRequest struct {
 	Bio            string
 }
 
-// UserProfile represents the structure of user_profile table in the database
-type UserProfile struct {
-	Username       string `json:"username"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	ProfilePicture string `json:"profile_picture"`
-	Bio            string `json:"bio"`
-	UserId         int64  `json:"user_id"`
-}
-
-// UserTokens represents the structure of user_tokens table in the database
-type UserTokens struct {
-	Id        int64
-	ExpiresAt time.Time
-	CreatedAt time.Time
-	UserId    int64
-}
-
 // CreateProfile creates the user profile after verification
 func CreateProfile(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +29,8 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// get userid from the token
-		var userToken UserTokens
+		var userToken handlers.UserTokens
+		println("running query")
 		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
 			log.Fatal("failed to query database: ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +39,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 
 		log.Println("user with token found: ", r.Header.Get("Authorization"), " ", userToken.UserId)
 
-		userProfile := UserProfile{
+		userProfile := handlers.UserProfile{
 			Username:       req.Username,
 			FirstName:      req.FirstName,
 			LastName:       req.LastName,
@@ -67,7 +49,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if the username is taken
-		if !handlers.CheckUnique(db, "username", userProfile.Username) {
+		if !handlers.CheckUnique(db, "username", userProfile.Username, handlers.UserProfile{}) {
 			http.Error(w, "Username already taken", http.StatusBadRequest)
 			return
 		}

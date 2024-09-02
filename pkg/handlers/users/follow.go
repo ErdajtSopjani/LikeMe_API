@@ -9,16 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// Follows is the struct for the follows table in the database
-type Follows struct {
-	FollowerId  int64 `json:"follower_id"`
-	FollowingId int64 `json:"following_id"`
-}
-
 // FollowAccount is a handler that checks if both users exist and creates a new follow in the database
 func FollowAccount(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req Follows
+		var req handlers.Follows
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil { // if the request body is not valid
 			log.Fatal("FollowAccount failed to decode request body: ", err)
@@ -27,13 +21,13 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if both users exist by checking if their values are not unique
-		usersExist := !handlers.CheckUnique(db, "id", req.FollowerId) && !handlers.CheckUnique(db, "id", req.FollowingId)
+		usersExist := !handlers.CheckUnique(db, "id", req.FollowerId, handlers.User{}) && !handlers.CheckUnique(db, "id", req.FollowingId, handlers.User{})
 		if !usersExist { // if one or both values return to be unique
 			http.Error(w, "Invalid user_id", http.StatusBadRequest)
 			return
 		}
 
-		follows := Follows{
+		follows := handlers.Follows{
 			FollowerId:  req.FollowerId,
 			FollowingId: req.FollowingId,
 		}
