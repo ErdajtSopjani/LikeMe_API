@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	accountHandlers "github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +27,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if both users exist by checking if their values are not unique
-		usersExist := !accountHandlers.CheckUnique(db, "id", req.FollowerId) && !accountHandlers.CheckUnique(db, "id", req.FollowingId)
+		usersExist := !handlers.CheckUnique(db, "id", req.FollowerId) && !handlers.CheckUnique(db, "id", req.FollowingId)
 		if !usersExist { // if one or both values return to be unique
 			http.Error(w, "Invalid user_id", http.StatusBadRequest)
 			return

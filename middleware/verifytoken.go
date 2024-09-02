@@ -15,7 +15,7 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 			token := r.Header.Get("Authorization")
 
 			// if its a register request continue to the next handler
-			if r.URL.Path == "/api/v1/register" {
+			if r.URL.Path == "/api/v1/register" || r.URL.Path == "/api/v1/login" || r.URL.Path == "/api/v1/verify" {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -27,20 +27,22 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 				return
 			}
 
-			type User struct {
-				Token          string
-				TokenExpiresAt time.Time
+			type UserToken struct {
+				Token     string
+				CreatedAt time.Time
+				ExpiresAt time.Time
+				UserId    int64
 			}
 
-			var user User
+			var userToken UserToken
 
 			// query database to check if token exists
-			err := db.Select("token", "token_expires_at").Where("token = ?", token).First(&user).Error
+			err := db.Select("token", "expires_at").Where("token = ?", token).First(&userToken).Error
 			if err != nil {
 				if err == gorm.ErrRecordNotFound { // if token is not found
 					log.Println("Unauthorized request from: ", r.RemoteAddr)
 					http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
-				} else if user.TokenExpiresAt.Before(time.Now()) { // if token is expired
+				} else if userToken.ExpiresAt.Before(time.Now()) { // if token is expired
 					http.Error(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
 				} else {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
