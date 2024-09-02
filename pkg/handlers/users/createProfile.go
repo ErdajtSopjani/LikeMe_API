@@ -54,6 +54,12 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
+		// check if any field is empty except for bio
+		if userProfile.Username == "" || userProfile.FirstName == "" || userProfile.LastName == "" || userProfile.ProfilePicture == "" {
+			http.Error(w, "All fields are required", http.StatusBadRequest)
+			return
+		}
+
 		// create user profile
 		if err := db.Create(&userProfile).Error; err != nil { // if profile creation fails
 			log.Fatal("failed to create user profile: ", err)

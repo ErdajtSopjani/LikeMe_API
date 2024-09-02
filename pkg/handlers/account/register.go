@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/email"
 	"gorm.io/gorm"
 )
 
@@ -26,10 +27,10 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			CountryCode: req.CountryCode,
 		}
 
-		if !handlers.CheckUnique(db, "email", user.Email, handlers.UserProfile{}) { // if email exists
-			http.Error(w, "Email already taken", http.StatusBadRequest)
-			return
-		}
+		// if !handlers.CheckUnique(db, "email", user.Email, handlers.UserProfile{}) { // if email exists
+		// http.Error(w, "Email already taken", http.StatusBadRequest)
+		// return
+		//}
 
 		if err := db.Create(&user).Error; err != nil {
 			log.Fatal("failed to create user:", err)
@@ -38,7 +39,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// TODO: Send an email confirmation
-		// email.SendConfirmation(user.Email)
+		email.SendConfirmation(user.Email)
 
 		// Respond with the new user
 		w.Header().Set("Content-Type", "application/json")
