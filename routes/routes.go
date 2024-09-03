@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
+	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/email"
 	userHandlers "github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/users"
 )
 
@@ -30,6 +31,9 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Post("/api/v1/follow", userHandlers.FollowAccount(db))
 	// TODO: mux.Post("/api/v1/login", handlers.LoginUser(db))
 	mux.Post("/api/v1/profile", userHandlers.CreateProfile(db))
+
+	// TODO: mux.Post("/api/v1/resend/login", email.SendLoginEmail(db))
+	mux.Post("/api/v1/resend/verification", email.ResendVerificationEmail(db))
 
 	/* Delete Requests */
 	// TODO: mux.Delete("/api/v1/unfollow", userHandlers.UnfollowAccount(db))

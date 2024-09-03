@@ -21,7 +21,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if both users exist by checking if their values are not unique
-		usersExist := !handlers.CheckUnique(db, "id", req.FollowerId, handlers.User{}) && !handlers.CheckUnique(db, "id", req.FollowingId, handlers.User{})
+		usersExist := !handlers.CheckUnique(db, "id", req.FollowerId, "users") && !handlers.CheckUnique(db, "id", req.FollowingId, "users")
 		if !usersExist { // if one or both values return to be unique
 			http.Error(w, "Invalid user_id", http.StatusBadRequest)
 			return
@@ -34,7 +34,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 
 		if err := db.Create(&follows).Error; err != nil { // create a new follow
 			log.Fatal("failed to create new follow: ", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
 			return
 		}
 
@@ -44,7 +44,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 
 		if err := json.NewEncoder(w).Encode(w); err != nil {
 			log.Fatal("failed to encode response: ", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
 			return
 		}
 	}

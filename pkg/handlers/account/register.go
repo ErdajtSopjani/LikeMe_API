@@ -16,25 +16,25 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		// Parse the req from the request body
 		var req handlers.User
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			log.Fatal("failed to decode req:", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("\n\nBAD REQUEST\n\tBad request: %s\n\tError: %s\n\n", req, err)
 			return
 		}
 
 		// Create a new user in the database
-		user := handlers.User{
+		user := &handlers.User{
 			Email:       req.Email,
 			CountryCode: req.CountryCode,
 		}
 
-		// if !handlers.CheckUnique(db, "email", user.Email, handlers.UserProfile{}) { // if email exists
-		// http.Error(w, "Email already taken", http.StatusBadRequest)
-		// return
-		//}
+		if !handlers.CheckUnique(db, "email", user.Email, "users") { // if email exists
+			http.Error(w, "Email already taken", http.StatusBadRequest)
+			return
+		}
 
 		if err := db.Create(&user).Error; err != nil {
-			log.Fatal("failed to create user:", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to create user:%s\n\tError: %s\n\n", user, err)
 			return
 		}
 

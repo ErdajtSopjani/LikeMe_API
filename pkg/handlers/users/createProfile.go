@@ -23,8 +23,8 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req CreateProfileRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			log.Fatal("failed to decode request body: ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("\n\nBAD REQUEST\n\tBad request: %s\n\tError: %s\n\n", req, err)
 			return
 		}
 
@@ -32,8 +32,8 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		var userToken handlers.UserTokens
 		println("running query")
 		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
-			log.Fatal("failed to query database: ", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
+			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
 			return
 		}
 
@@ -49,7 +49,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if the username is taken
-		if !handlers.CheckUnique(db, "username", userProfile.Username, handlers.UserProfile{}) {
+		if !handlers.CheckUnique(db, "username", userProfile.Username, "user_profile") {
 			http.Error(w, "Username already taken", http.StatusBadRequest)
 			return
 		}
@@ -63,7 +63,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		// create user profile
 		if err := db.Create(&userProfile).Error; err != nil { // if profile creation fails
 			log.Fatal("failed to create user profile: ", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
 			return
 		}
 

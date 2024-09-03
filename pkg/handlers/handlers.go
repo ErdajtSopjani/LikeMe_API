@@ -33,3 +33,9 @@ type Follows struct {
 	FollowerId  int64 `json:"follower_id"`
 	FollowingId int64 `json:"following_id"`
 }
+
+// VerificationTokens is the struct for the verification_tokens table in the database
+type VerificationTokens struct {
+	Token  string `json:"token"`
+	UserId int64  `json:"user_id"`
+}

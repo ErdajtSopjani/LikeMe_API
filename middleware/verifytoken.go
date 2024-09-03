@@ -15,7 +15,11 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 			token := r.Header.Get("Authorization")
 
 			// if its a register request continue to the next handler
-			if r.URL.Path == "/api/v1/register" || r.URL.Path == "/api/v1/login" || r.URL.Path == "/api/v1/verify" {
+			if r.URL.Path == "/api/v1/register" ||
+				r.URL.Path == "/api/v1/login" ||
+				r.URL.Path == "/api/v1/verify" ||
+				r.URL.Path == "/api/v1/resend/verification" ||
+				r.URL.Path == "/api/v1/resend/login" {
 				next.ServeHTTP(w, r)
 				return
 			}
