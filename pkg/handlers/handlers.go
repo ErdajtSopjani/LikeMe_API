@@ -1,9 +1,5 @@
 package handlers
 
-import (
-	"time"
-)
-
 // User represents the structure of the {users} table in the database
 type User struct {
 	Email       string `json:"email"`
@@ -20,21 +16,13 @@ type UserProfile struct {
 	UserId         int64  `json:"user_id"`
 }
 
-// UserTokens represents the structure of user_tokens table in the database
-type UserTokens struct {
-	Id        int64
-	ExpiresAt time.Time
-	CreatedAt time.Time
-	UserId    int64
-}
-
-// Follows is the struct for the follows table in the database
+// Follows represents the follows table in the database
 type Follows struct {
 	FollowerId  int64 `json:"follower_id"`
 	FollowingId int64 `json:"following_id"`
 }
 
-// VerificationTokens is the struct for the verification_tokens table in the database
+// VerificationTokens represents the verification_tokens and user_tokens tables in the database
 type VerificationTokens struct {
 	Token  string `json:"token"`
 	UserId int64  `json:"user_id"`

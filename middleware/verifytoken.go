@@ -50,7 +50,7 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 					http.Error(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
 				} else {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					log.Fatal("failed to query database:", err)
+					log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
 				}
 				return
 			}

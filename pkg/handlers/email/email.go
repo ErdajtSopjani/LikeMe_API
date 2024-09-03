@@ -38,13 +38,16 @@ func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Re
 
 		// delete the old verification email from the verification_tokens table
 		if err := db.Where("user_id= ?", req.UserId).Delete(&handlers.VerificationTokens{}).Error; err != nil {
-			log.Panicf("failed to delete the old verification email: %v", err)
 			http.Error(w, "Internal Server Error.", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to delete verification token: %v\n\tError: %s\n\n", req, err)
 			return
 		}
 
-		// send a new verification email
-		SendConfirmation(req.Email)
+		err := SendConfirmation(db, req.Email, req.UserId) // send the email
+		if err != nil {
+			http.Error(w, "Internal Server Error.", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)
+		}
 
 		w.Write([]byte("Email sent"))
 	}

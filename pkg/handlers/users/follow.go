@@ -15,8 +15,8 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		var req handlers.Follows
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil { // if the request body is not valid
-			log.Fatal("FollowAccount failed to decode request body: ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("\n\nBAD REQUEST\n\tBad request on follow: %v\n\tError: %s\n\n", req, err)
 			return
 		}
 
@@ -33,8 +33,8 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		if err := db.Create(&follows).Error; err != nil { // create a new follow
-			log.Fatal("failed to create new follow: ", err)
 			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to create follow: %v\n\tError: %s\n\n", follows, err)
 			return
 		}
 
@@ -43,7 +43,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		w.WriteHeader(http.StatusCreated)
 
 		if err := json.NewEncoder(w).Encode(w); err != nil {
-			log.Fatal("failed to encode response: ", err)
+			log.Printf("\n\nERROR\n\tFailed to encode follow: %v\n\tError: %s\n\n", follows, err)
 			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
 			return
 		}
