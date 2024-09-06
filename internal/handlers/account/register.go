@@ -17,7 +17,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		var req handlers.User
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			log.Printf("\n\nBAD REQUEST\n\tBad request: %s\n\tError: %s\n\n", req, err)
+			log.Printf("\n\nBAD REQUEST\n\tBad request: %v\n\tError: %s\n\n", req, err)
 			return
 		}
 
@@ -36,7 +36,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		// create the user
 		if err := db.Create(&user).Error; err != nil {
 			http.Error(w, "Internal Server Error...", http.StatusInternalServerError)
-			log.Print("\n\nERROR\n\tFailed to create user:%s\n\tError: %s\n\n", user, err)
+			log.Printf("\n\nERROR\n\tFailed to create user:%v\n\tError: %s\n\n", user, err)
 			return
 		}
 
@@ -58,7 +58,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		if err := db.Create(&userTokens).Error; err != nil || userTokens.Token == "" {
 			// if the token is not saved or created
 			http.Error(w, "Internal Server Error...", http.StatusInternalServerError)
-			log.Printf("\n\nERROR\n\tFailed to create or save token for user: %s\n\tError: %s\n\n", user, err)
+			log.Printf("\n\nERROR\n\tFailed to create or save token for user: %v\n\tError: %s\n\n", user, err)
 			return
 		}
 
