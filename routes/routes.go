@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/config"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/account"
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/email"
-	userHandlers "github.com/ErdajtSopjani/LikeMe_API/pkg/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
+	userHandlers "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
 )
 
 func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
@@ -33,7 +33,8 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Post("/api/v1/profile", userHandlers.CreateProfile(db))
 
 	// TODO: mux.Post("/api/v1/resend/login", email.SendLoginEmail(db))
-	mux.Post("/api/v1/resend/verification", email.ResendVerificationEmail(db))
+	mux.Post("/api/v1/verification/resend", email.ResendVerificationEmail(db))
+	mux.Post("/api/v1/verification/email", email.VerifyEmail(db))
 
 	/* Delete Requests */
 	// TODO: mux.Delete("/api/v1/unfollow", userHandlers.UnfollowAccount(db))

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +29,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// get userid from the token
-		var userToken handlers.UserTokens
+		var userToken handlers.VerificationTokens
 		println("running query")
 		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
@@ -62,8 +62,8 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 
 		// create user profile
 		if err := db.Create(&userProfile).Error; err != nil { // if profile creation fails
-			log.Fatal("failed to create user profile: ", err)
 			http.Error(w, "Internal-Server Error...", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to create user profile: %s\n\n", err)
 			return
 		}
 

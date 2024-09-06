@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ErdajtSopjani/LikeMe_API/pkg/config"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/config"
 	router "github.com/ErdajtSopjani/LikeMe_API/routes"
 
 	"github.com/joho/godotenv"

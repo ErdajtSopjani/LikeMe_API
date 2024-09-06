@@ -18,8 +18,8 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 			if r.URL.Path == "/api/v1/register" ||
 				r.URL.Path == "/api/v1/login" ||
 				r.URL.Path == "/api/v1/verify" ||
-				r.URL.Path == "/api/v1/resend/verification" ||
-				r.URL.Path == "/api/v1/resend/login" {
+				r.URL.Path == "/api/v1/verification/resend" ||
+				r.URL.Path == "/api/v1/verification/email" {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -50,7 +50,7 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 					http.Error(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
 				} else {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					log.Fatal("failed to query database:", err)
+					log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
 				}
 				return
 			}
@@ -60,3 +60,4 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 		})
 	}
 }
+
