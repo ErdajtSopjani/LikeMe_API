@@ -11,7 +11,14 @@ import (
 // VerifyEmail awaits for the SendConfirmation email to be verified
 func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
+		token := r.URL.Query().Get("token") // get token from urlQuery
+
+		// decline request if token is missing
+		if token == "" {
+			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from: %v\n\n", r.RemoteAddr)
+			http.Error(w, "Invalid Token", http.StatusBadRequest)
+			return
+		}
 
 		// check if token is valid
 		if err := db.Where("token = ?", token).First(&handlers.VerificationTokens{}).Error; err != nil {
@@ -20,10 +27,16 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// set the user to verified
-		// this will not work because there is a syntax error
-		// the correct syntax is:
-		if err := db.Model(&handlers.User{}).Where("user_id = ?", db.Model(handlers.VerificationTokens{}).Select("user_id").Where("token = ?", token)).Update("verified", true).Error; err != nil {
+		// get the user_id from the associated token
+		verificationToken := handlers.VerificationTokens{}
+		if err := db.Where("token = ?", token).First(&verificationToken).Error; err != nil {
+			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		userId := verificationToken.UserId
+
+		if err := db.Model(&handlers.User{}).Where("id = ?", userId).Update("verified", true).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to update user: %v\n\tError: %s\n\n", token, err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return

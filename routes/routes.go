@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/config"
+	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
@@ -18,9 +18,12 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux := chi.NewRouter()
 
 	/* Middleware */
+	// use cors protection in production
+	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(_middleware.NoSurf(app.IsProd))
 	mux.Use(_middleware.VerifyToken(db))
+	// TODO: use cors protection in production
 
 	/* Get Requests */
 	mux.Get("/is_running", greeting())
@@ -32,9 +35,9 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	// TODO: mux.Post("/api/v1/login", handlers.LoginUser(db))
 	mux.Post("/api/v1/profile", userHandlers.CreateProfile(db))
 
-	// TODO: mux.Post("/api/v1/resend/login", email.SendLoginEmail(db))
-	mux.Post("/api/v1/verification/resend", email.ResendVerificationEmail(db))
-	mux.Post("/api/v1/verification/email", email.VerifyEmail(db))
+	// TODO: mux.Post("/api/v1/email/resend/login", email.SendLoginEmail(db))
+	mux.Post("/api/v1/email/resend/register", email.ResendVerificationEmail(db))
+	mux.Post("/api/v1/email/verify", email.VerifyEmail(db))
 
 	/* Delete Requests */
 	// TODO: mux.Delete("/api/v1/unfollow", userHandlers.UnfollowAccount(db))
