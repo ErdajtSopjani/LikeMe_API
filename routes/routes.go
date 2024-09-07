@@ -32,10 +32,11 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	/* Post Requests */
 	mux.Post("/api/v1/register", account.RegisterUser(db))
 	mux.Post("/api/v1/follow", users.FollowAccount(db))
-	mux.Post("/api/v1/login", account.LoginUser(db))
+	mux.Post("/api/v1/login", account.Login(db))
 	mux.Post("/api/v1/profile", users.CreateProfile(db))
 
 	// TODO: mux.Post("/api/v1/email/resend/login", email.SendLoginEmail(db))
+	mux.Post("/api/v1/email/login", account.LoginUser(db))
 	mux.Post("/api/v1/email/resend/register", email.ResendVerificationEmail(db))
 	mux.Post("/api/v1/email/verify", email.VerifyEmail(db))
 
@@ -52,6 +53,7 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 func greeting() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("yes"))
 	}
 }

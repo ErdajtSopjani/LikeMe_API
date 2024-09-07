@@ -43,17 +43,7 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// create and save a token for the user
-		userToken := &handlers.UserTokens{
-			Token:  handlers.GenerateToken(),
-			UserId: user.ID,
-		}
-		if err := db.Create(&userToken).Error; err != nil || userToken.Token == "" {
-			http.Error(w, "Internal Server Error...", http.StatusInternalServerError)
-			log.Printf("\n\nERROR\n\tFailed to create token: %v\n\tError: %s\n\n", userToken, err)
-			return
-		}
-
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Login Email Sent"))
 	}
 }

@@ -1,5 +1,7 @@
 package handlers
 
+import "time"
+
 // User represents the structure of the {users} table in the database
 type User struct {
 	ID          int64  `json:"id"`
@@ -28,20 +30,24 @@ type Follows struct {
 
 // UserTokens represents the verification_tokens and user_tokens tables in the database
 type UserTokens struct {
-	ID     int64  `json:"id"`
-	Token  string `json:"token"`
-	UserId int64  `json:"user_id"`
+	ID        int64     `json:"id"`
+	Token     string    `json:"token"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 // VerificationTokens represents the verification_tokens table in the database
 type VerificationTokens struct {
-	ID     int64  `json:"id"`
-	Token  string `json:"token"`
-	UserId int64  `json:"user_id"`
+	ID        int64     `json:"id"`
+	Token     string    `json:"token"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
-type LoginCodes struct {
-	ID     int64  `json:"id"`
-	Code   string `json:"code"`
-	UserId int64  `json:"user_id"`
+// TwoFactor represents the two_factor table in the database used for email login
+type TwoFactor struct {
+	ID        int64     `json:"id"`
+	Code      string    `json:"code"`
+	UserId    int64     `json:"user_id"`
+	ExpiresAt time.Time `json:"expires_at"`
 }

@@ -3,6 +3,7 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,12 +15,8 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := r.Header.Get("Authorization")
 
-			// if its a register request continue to the next handler
-			if r.URL.Path == "/api/v1/register" ||
-				r.URL.Path == "/api/v1/login" ||
-				r.URL.Path == "/api/v1/email/verify" ||
-				r.URL.Path == "/api/v1/verification/resend" ||
-				r.URL.Path == "/api/v1/verification/email" {
+			// if its a register/login/email request continue to the next handler
+			if strings.HasPrefix(r.URL.Path, "/api/v1/email") || r.URL.Path == "/api/v1/register" || r.URL.Path == "/api/v1/login" {
 				next.ServeHTTP(w, r)
 				return
 			}

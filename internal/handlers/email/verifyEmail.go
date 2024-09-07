@@ -49,6 +49,7 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("User Email Verified"))
 	}
 }

@@ -49,6 +49,7 @@ func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Re
 			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)
 		}
 
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Email sent"))
 	}
 }
