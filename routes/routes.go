@@ -11,7 +11,7 @@ import (
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
-	userHandlers "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
 )
 
 func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
@@ -30,10 +30,10 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	// TODO: mux.Get("/api/v1/is_verified", userHandlers.IsVerified(db))
 
 	/* Post Requests */
-	mux.Post("/api/v1/register", handlers.RegisterUser(db))
-	mux.Post("/api/v1/follow", userHandlers.FollowAccount(db))
-	// TODO: mux.Post("/api/v1/login", handlers.LoginUser(db))
-	mux.Post("/api/v1/profile", userHandlers.CreateProfile(db))
+	mux.Post("/api/v1/register", account.RegisterUser(db))
+	mux.Post("/api/v1/follow", users.FollowAccount(db))
+	mux.Post("/api/v1/login", account.LoginUser(db))
+	mux.Post("/api/v1/profile", users.CreateProfile(db))
 
 	// TODO: mux.Post("/api/v1/email/resend/login", email.SendLoginEmail(db))
 	mux.Post("/api/v1/email/resend/register", email.ResendVerificationEmail(db))

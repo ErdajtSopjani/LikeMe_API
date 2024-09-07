@@ -1,54 +1,52 @@
 package email
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
 )
 
-// Email is the structure accepted by sendgrid to send an email
-type Email struct {
-	From             *mail.Email
-	Subject          string
-	To               *mail.Email
-	PlainTextContent string
-	HTMLContent      string
-	client           *sendgrid.Client
-}
-
 // SendConfirmation sends an email verification on account creation
 func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
-	err, confirmationToken := handleTokens(db, userId)
+	err, confirmationToken := HandleRegisterTokens(db, userId)
 	if err != nil {
 		return err
 	}
 
 	var verifyEmail string = fmt.Sprintf(`
-        <html>
-            <body>
-                <h1>Verify your email address</h1>
-                <br/>
-                <h3>Thank you for becoming part of LikeMe!<h3>
-
-                <br/>
-                <p>Please verify your email address to proceed</p>
-                <a href="%s/verify?token=%s">Click here to verify</a>
-
-                <br/>
-                <br/>
-                <p>If you encounter any problems feel free to reach out via this email address.</p>
-                <br/>
-                <br/>
-                <p>All the best,<br/>LikeMe</p>
-                <br/>
-            </body>
-        </html>`, os.Getenv("FRONTEND_URL"), confirmationToken)
+<html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
+            <h1 style="color: #4CAF50; text-align: center; font-size: 28px; margin-bottom: 20px;">Verify Your Email Address</h1>
+            <p style="font-size: 16px; color: #555; text-align: center;">Welcome to LikeMe!</p>
+            <p style="font-size: 16px; color: #555; text-align: center;">
+                Thank you for joining our community. To get started, please verify your email address by clicking the button below.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="%s/verify?token=%s" style="background-color: #4CAF50; color: #ffffff; text-decoration: none; padding: 15px 30px; font-size: 16px; border-radius: 5px; display: inline-block;">
+                    Verify Email
+                </a>
+            </div>
+            <p style="font-size: 14px; color: #777; text-align: center;">
+                If the button doesn't work, copy and paste the following URL into your browser:
+            </p>
+            <p style="font-size: 14px; color: #4CAF50; word-wrap: break-word; text-align: center;">%s/verify?token=%s</p>
+            <p style="font-size: 14px; color: #777; text-align: center;">
+                If you encounter any issues, feel free to reply to this email for support.
+            </p>
+            <br />
+            <p style="font-size: 14px; color: #777; text-align: center;">
+                Best regards,<br />
+                <strong>LikeMe Team</strong>
+            </p>
+        </div>
+    </body>
+</html>
+`, os.Getenv("FRONTEND_URL"), confirmationToken, os.Getenv("FRONTEND_URL"), confirmationToken)
 
 	// Create a new email
 	confirmationEmail := &Email{
@@ -73,34 +71,11 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 	)
 
 	if err != nil {
-		log.Printf("\n\nERROR\n\tUnable to confirmation email\n\tERROR: %v\n\n", err)
+		log.Printf("\n\nERROR\n\tUnable to send confirmation email\n\tERROR: %v\n\n", err)
 		return err
 	} else {
 		log.Println(response.StatusCode, ": Email confirmation sent: %v", confirmationEmail.To)
 	}
 
 	return nil
-}
-
-// handleTokens generates a new token and saves it to the database
-func handleTokens(db *gorm.DB, userId int64) (error, string) {
-	// generate a new token
-	confirmationToken := handlers.GenerateToken()
-	if confirmationToken == "" {
-		log.Printf("\n\nERROR\n\tFailed to generate token for user: %v\n\n", userId)
-		return errors.New("Failed to generate token for user: "), ""
-	}
-
-	verificationToken := &handlers.VerificationTokens{
-		UserId: userId,
-		Token:  confirmationToken,
-	}
-
-	// save confirmationToken to the database
-	if err := db.Create(&verificationToken).Error; err != nil {
-		log.Println("ERROR\n\tFailed to save verification token: ", err)
-		return errors.New("Failed to create/save verification token: " + err.Error()), ""
-	}
-
-	return nil, confirmationToken
 }
