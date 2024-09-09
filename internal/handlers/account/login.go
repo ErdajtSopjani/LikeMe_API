@@ -47,7 +47,7 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// userTokenRecord represents the user_tokens table structure
-		userTokenRecord := handlers.UserTokens{
+		userTokenRecord := handlers.UserToken{
 			Token:     userToken,
 			UserId:    user.ID,
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 30), // token expires in 30 days

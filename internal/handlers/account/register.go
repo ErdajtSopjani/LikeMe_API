@@ -50,7 +50,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// create and save a token for the user
-		userTokens := &handlers.VerificationTokens{
+		userTokens := &handlers.VerificationToken{
 			UserId: userId,
 			Token:  handlers.GenerateToken(),
 		}

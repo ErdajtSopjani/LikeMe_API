@@ -29,7 +29,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// get userid from the token
-		var userToken handlers.VerificationTokens
+		var userToken handlers.VerificationToken
 		println("running query")
 		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)

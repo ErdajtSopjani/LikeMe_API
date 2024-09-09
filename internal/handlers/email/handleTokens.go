@@ -18,7 +18,7 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 		return errors.New("Failed to generate token for user: "), ""
 	}
 
-	verificationToken := &handlers.VerificationTokens{
+	verificationToken := &handlers.VerificationToken{
 		UserId:    userId,
 		Token:     confirmationToken,
 		ExpiresAt: time.Now().Add(time.Minute * 10),
@@ -34,12 +34,12 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 }
 
 // HandleLoginCodes generates a 6 digit code used for email auth
-func HandleLoginCodes(db *gorm.DB, userId int64) (error, string) {
+func HandleLoginCodes(db *gorm.DB, userId int64) (error, int) {
 	loginCode, err := handlers.GenerateCode()
 
 	if err != nil {
 		log.Printf("\n\nERROR\n\tFailed to generate login code for user: %v\n\n", userId)
-		return errors.New("Failed to generate login code for user: "), ""
+		return errors.New("Failed to generate login code for user: "), 0
 	}
 
 	twoFactor := &handlers.TwoFactor{
@@ -51,7 +51,7 @@ func HandleLoginCodes(db *gorm.DB, userId int64) (error, string) {
 	// save loginCode to the database
 	if err := db.Create(&twoFactor).Error; err != nil {
 		log.Println("ERROR\n\tFailed to save login code: ", err)
-		return errors.New("Failed to create/save login code: " + err.Error()), ""
+		return errors.New("Failed to create/save login code: " + err.Error()), 0
 	}
 
 	return nil, loginCode

@@ -37,7 +37,7 @@ func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Re
 		}
 
 		// delete the old verification email from the verification_tokens table
-		if err := db.Where("user_id= ?", req.UserId).Delete(&handlers.VerificationTokens{}).Error; err != nil {
+		if err := db.Where("user_id= ?", req.UserId).Delete(&handlers.VerificationToken{}).Error; err != nil {
 			http.Error(w, "Internal Server Error.", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to delete verification token: %v\n\tError: %s\n\n", req, err)
 			return

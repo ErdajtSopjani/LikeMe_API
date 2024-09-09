@@ -12,7 +12,7 @@ import (
 // FollowAccount is a handler that checks if both users exist and creates a new follow in the database
 func FollowAccount(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req handlers.Follows
+		var req handlers.Follow
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil { // if the request body is not valid
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -27,7 +27,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		follows := handlers.Follows{
+		follows := handlers.Follow{
 			FollowerId:  req.FollowerId,
 			FollowingId: req.FollowingId,
 		}

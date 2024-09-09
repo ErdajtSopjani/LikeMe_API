@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 
 	"crypto/rand"
@@ -21,16 +20,16 @@ func GenerateToken() string {
 }
 
 // GenerateCode generates a 6-digit code
-func GenerateCode() (string, error) {
+func GenerateCode() (int, error) {
 	// Define the range for a 6-digit code (100000 to 999999)
 	max := big.NewInt(900000)
 
 	// generate random number between 0-899999, then add 100000 to get 6 digit num
 	num, err := rand.Int(rand.Reader, max)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
-	code := num.Int64() + 100000
-	return fmt.Sprintf("%06d", code), nil
+	code := int(num.Int64()) + 100000
+	return code, nil
 }

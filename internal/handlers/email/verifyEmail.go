@@ -21,14 +21,14 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// check if token is valid
-		if err := db.Where("token = ?", token).First(&handlers.VerificationTokens{}).Error; err != nil {
+		if err := db.Where("token = ?", token).First(&handlers.VerificationToken{}).Error; err != nil {
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, token, err)
 			http.Error(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 
 		// get the user_id from the associated token
-		verificationToken := handlers.VerificationTokens{}
+		verificationToken := handlers.VerificationToken{}
 		if err := db.Where("token = ?", token).First(&verificationToken).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -43,7 +43,7 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// delete the token from the database
-		if err := db.Where("token = ?", token).Delete(&handlers.VerificationTokens{}).Error; err != nil {
+		if err := db.Where("token = ?", token).Delete(&handlers.VerificationToken{}).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to delete token: %v\n\tError: %s\n\n", token, err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
