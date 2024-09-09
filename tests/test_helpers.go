@@ -18,15 +18,17 @@ func SetupTestDB() *gorm.DB {
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_TEST_NAME")
-
-	// create db connection string
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbName, dbPassword,
-	)
+	dbSSLMode := os.Getenv("DB_SSLMODE")
 
 	// connect to the test database
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(
+		postgres.Open(
+			fmt.Sprintf(
+				"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+				dbHost, dbPort, dbUser, dbName, dbPassword, dbSSLMode)),
+		&gorm.Config{})
+
+	// connect to the test database
 	if err != nil {
 		log.Fatalf("Failed to connect to the test database: %v", err)
 	}
