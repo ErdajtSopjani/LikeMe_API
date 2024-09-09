@@ -55,7 +55,7 @@ func initDB() (*gorm.DB, error) {
 
 func Run() {
 	port := ":3333"
-	host := "0.0.0.0"
+	host := "localhost"
 	addr := host + port
 
 	/*

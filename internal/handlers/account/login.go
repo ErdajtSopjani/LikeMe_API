@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,7 @@ func Login(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
 		if code == "" {
-			http.Error(w, "Empty Code", http.StatusBadRequest)
+			helpers.RespondError(w, "Empty Code", http.StatusBadRequest)
 			return
 		}
 
@@ -24,25 +25,25 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		twoFactor := handlers.TwoFactor{}
 
 		if err := db.Where("code = ?", code).First(&twoFactor).Error; err != nil {
-			http.Error(w, "Invalid Code", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Code", http.StatusBadRequest)
 			return
 		} else if twoFactor.ExpiresAt.Before(time.Now()) {
 			log.Println(twoFactor.ExpiresAt)
-			http.Error(w, "Code Expired", http.StatusBadRequest)
+			helpers.RespondError(w, "Code Expired", http.StatusBadRequest)
 			return
 		}
 
 		// get the user record from the database to check if record is valid and get the user id
 		user := handlers.User{}
 		if err := db.Where("id = ?", twoFactor.UserId).First(&user).Error; err != nil {
-			http.Error(w, "Invalid Record", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Record", http.StatusBadRequest)
 			return
 		}
 
 		/* Create and save auth token */
-		userToken := handlers.GenerateToken()
+		userToken := helpers.GenerateToken()
 		if userToken == "" { // if token generation fails
-			http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+			helpers.RespondError(w, "Failed to generate token", http.StatusInternalServerError)
 			return
 		}
 
@@ -53,11 +54,10 @@ func Login(db *gorm.DB) http.HandlerFunc {
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 30), // token expires in 30 days
 		}
 		if err := db.Create(&userTokenRecord).Error; err != nil { // if saving token fails
-			http.Error(w, "Failed to save token", http.StatusInternalServerError)
+			helpers.RespondError(w, "Failed to save token", http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(userToken))
+		helpers.RespondJSON(w, http.StatusOK, userToken)
 	}
 }

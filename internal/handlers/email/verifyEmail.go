@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
 
@@ -16,14 +17,14 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 		// decline request if token is missing
 		if token == "" {
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from: %v\n\n", r.RemoteAddr)
-			http.Error(w, "Invalid Token", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 
 		// check if token is valid
 		if err := db.Where("token = ?", token).First(&handlers.VerificationToken{}).Error; err != nil {
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, token, err)
-			http.Error(w, "Invalid Token", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 
@@ -31,25 +32,24 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 		verificationToken := handlers.VerificationToken{}
 		if err := db.Where("token = ?", token).First(&verificationToken).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		userId := verificationToken.UserId
 
 		if err := db.Model(&handlers.User{}).Where("id = ?", userId).Update("verified", true).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to update user: %v\n\tError: %s\n\n", token, err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		// delete the token from the database
 		if err := db.Where("token = ?", token).Delete(&handlers.VerificationToken{}).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to delete token: %v\n\tError: %s\n\n", token, err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("User Email Verified"))
+		helpers.RespondJSON(w, http.StatusOK, "User Email Verified")
 	}
 }

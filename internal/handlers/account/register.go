@@ -4,20 +4,42 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
+
+type RegisterRequest struct {
+	Email       string `json:"email"`
+	CountryCode string `json:"country_code"`
+}
 
 // RegisterUser is a handler for registering a new user and sending an email confirmation
 func RegisterUser(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Parse the req from the request body
-		var req handlers.User
+		var req RegisterRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Request-Format", http.StatusBadRequest)
 			log.Printf("\n\nBAD REQUEST\n\tBad request: %v\n\tError: %s\n\n", req, err)
+			return
+		}
+
+		// validate email format using regex
+		emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+		if !regexp.MustCompile(emailRegex).MatchString(req.Email) {
+			helpers.RespondError(w, "Invalid Email", http.StatusBadRequest)
+			log.Printf("Invalid email format: %v\n", req.Email)
+			return
+		}
+
+		// check if the country_code is missing
+		if req.CountryCode == "" {
+			helpers.RespondError(w, "Country Code is required", http.StatusBadRequest)
+			log.Printf("Missing Country Code")
 			return
 		}
 
@@ -28,14 +50,14 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if the email exists in the database
-		if !handlers.CheckUnique(db, "email", user.Email, "users") { // if email exists
-			http.Error(w, "Email already taken", http.StatusBadRequest)
+		if !helpers.CheckUnique(db, "email", user.Email, "users") { // if email exists
+			helpers.RespondError(w, "Email already taken", http.StatusBadRequest)
 			return
 		}
 
 		// create the user
 		if err := db.Create(&user).Error; err != nil {
-			http.Error(w, "Internal Server Error...", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error...", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to create user:%v\n\tError: %s\n\n", user, err)
 			return
 		}
@@ -44,7 +66,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		// since it's needed for both sending the email and for creating the token
 		var userId int64
 		if err := db.Table("users").Select("id").Where("email = ?", user.Email).Scan(&userId).Error; err != nil {
-			http.Error(w, "Internal Server Error.", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error.", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to get user id: %v\n\tError: %s", req, err)
 			return
 		}
@@ -52,26 +74,24 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		// create and save a token for the user
 		userTokens := &handlers.VerificationToken{
 			UserId: userId,
-			Token:  handlers.GenerateToken(),
+			Token:  helpers.GenerateToken(),
 		}
 
+		// create email verification token
 		if err := db.Create(&userTokens).Error; err != nil || userTokens.Token == "" {
 			// if the token is not saved or created
-			http.Error(w, "Internal Server Error...", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error...", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to create or save token for user: %v\n\tError: %s\n\n", user, err)
 			return
 		}
 
 		// send the confirmation email
 		if err := email.SendConfirmation(db, user.Email, userId); err != nil {
-			http.Error(w, "Internal Server Error.", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error.", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)
 			return
 		}
 
-		// Respond with the new user
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("User created"))
+		helpers.RespondJSON(w, http.StatusCreated, "User created")
 	}
 }

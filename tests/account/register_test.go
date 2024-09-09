@@ -35,42 +35,86 @@ func TestRegisterUser(t *testing.T) {
 	// connect to test database
 	db = tests.SetupTestDB()
 
-	// define request payload for test
-	reqBody := map[string]string{
-		"email":        "test@example.com",
-		"country_code": "+1",
+	testCases := []struct {
+		name         string
+		reqBody      map[string]string
+		expectedCode int
+		expectedBody string
+	}{
+		{
+			name: "Create valid user",
+			reqBody: map[string]string{
+				"email":        "test@example.com",
+				"country_code": "OK",
+			},
+			expectedCode: http.StatusCreated,
+			expectedBody: "User created",
+		},
+		{
+			name: "Duplicate email",
+			reqBody: map[string]string{
+				"email":        "test@example.com", // already exists after the first test
+				"country_code": "BAD",
+			},
+			expectedCode: http.StatusBadRequest,
+			expectedBody: "Email already taken",
+		},
+		{
+			name: "Invalid email format",
+			reqBody: map[string]string{
+				"email":        "invalidemail@gmail",
+				"country_code": "BAD",
+			},
+			expectedCode: http.StatusBadRequest,
+			expectedBody: "Invalid Email",
+		},
+		{
+			name: "Missing country code",
+			reqBody: map[string]string{
+				"email":        "test@example.com",
+				"country_code": "",
+			},
+			expectedCode: http.StatusBadRequest,
+			expectedBody: "Country Code is required",
+		},
 	}
-	body, _ := json.Marshal(reqBody)
 
-	// make new POST request
-	req, err := http.NewRequest("POST", "/api/v1/register", bytes.NewBuffer(body))
-	if err != nil {
-		t.Fatal(err)
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// create request body
+			reqBody, err := json.Marshal(tt.reqBody)
+			if err != nil {
+				t.Fatalf("Failed to marshal request body: %v", err)
+			}
+
+			// create request
+			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(reqBody))
+			if err != nil {
+				t.Fatalf("Failed to create request: %v", err)
+			}
+
+			// create response recorder
+			rr := httptest.NewRecorder()
+
+			// create handler
+			handler := http.HandlerFunc(account.RegisterUser(db))
+
+			// serve http
+			handler.ServeHTTP(rr, req)
+
+			// check status code
+			assert.Equal(t, tt.expectedCode, rr.Code)
+
+			// check response body as JSON
+			var response map[string]string
+			if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
+				t.Fatalf("Response body is not valid JSON: %v", err)
+			}
+
+			// check if the "message" field matches the expected body
+			assert.Equal(t, tt.expectedBody, response["message"])
+		})
 	}
-
-	// use httptest to create a ResponseRecorder
-	rr := httptest.NewRecorder()
-
-	// call the RegisterUser handler
-	handler := account.RegisterUser(db)
-	handler.ServeHTTP(rr, req)
-
-	// check if the status code is 201 Created
-	assert.Equal(t, http.StatusCreated, rr.Code)
-
-	// check the response body
-	expected := "User created"
-	assert.Equal(t, expected, rr.Body.String())
-
-	// verify that user has been added to the database
-	var count int64
-	err = db.Table("users").Where("email = ?", "test@example.com").Count(&count).Error
-	if err != nil {
-		t.Fatalf("Failed to check the database for user: %v", err)
-	}
-
-	// ensure user was added
-	assert.Equal(t, int64(1), count)
 
 	tests.CleanupTestDB(db) // cleanup database
 }

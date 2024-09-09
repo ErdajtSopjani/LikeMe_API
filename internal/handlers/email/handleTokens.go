@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
 
 func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	// generate a new token
-	confirmationToken := handlers.GenerateToken()
+	confirmationToken := helpers.GenerateToken()
 
 	if confirmationToken == "" {
 		log.Printf("\n\nERROR\n\tFailed to generate token for user: %v\n\n", userId)
@@ -35,7 +36,7 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 
 // HandleLoginCodes generates a 6 digit code used for email auth
 func HandleLoginCodes(db *gorm.DB, userId int64) (error, int) {
-	loginCode, err := handlers.GenerateCode()
+	loginCode, err := helpers.GenerateCode()
 
 	if err != nil {
 		log.Printf("\n\nERROR\n\tFailed to generate login code for user: %v\n\n", userId)

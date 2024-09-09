@@ -7,6 +7,7 @@ import (
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +21,7 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 		var req LoginRequest
 		// validate request
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, "Invalid Request-Format", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid Request-Format", http.StatusBadRequest)
 			log.Printf("\n\nBAD REQUEST\n\tBad request: %v\n\tError: %s\n\n", req, err)
 			return
 		}
@@ -28,22 +29,21 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 		// get user with the associated email
 		var user handlers.User
 		if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
-			http.Error(w, "User not found", http.StatusBadRequest)
+			helpers.RespondError(w, "User not found", http.StatusBadRequest)
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, req, err)
 			return
 		} else if !user.Verified {
-			http.Error(w, "Email not verified", http.StatusBadRequest)
+			helpers.RespondError(w, "Email not verified", http.StatusBadRequest)
 			return
 		}
 
 		// send login email
 		if err := email.SendLoginEmail(db, user.ID, user.Email); err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to send login email: %v\n\tError: %s\n\n", user, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Login Email Sent"))
+		helpers.RespondJSON(w, http.StatusOK, "Login Email Sent")
 	}
 }
