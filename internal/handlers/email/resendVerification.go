@@ -18,6 +18,8 @@ type ResendRequest struct {
 // ResendVerificationEmail resends verification email and deletes the old one from the database
 func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO: remove user_id from this implementation
+
 		var req ResendRequest
 		// decode the request body
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

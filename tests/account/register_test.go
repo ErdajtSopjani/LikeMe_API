@@ -1,19 +1,14 @@
 package account_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
@@ -35,86 +30,46 @@ func TestRegisterUser(t *testing.T) {
 	// connect to test database
 	db = tests.SetupTestDB()
 
-	testCases := []struct {
-		name         string
-		reqBody      map[string]string
-		expectedCode int
-		expectedBody string
-	}{
+	testCases := []tests.TestCase{
 		{
-			name: "Create valid user",
-			reqBody: map[string]string{
+			Name: "Create valid user",
+			ReqBody: map[string]string{
 				"email":        "test@example.com",
 				"country_code": "OK",
 			},
-			expectedCode: http.StatusCreated,
-			expectedBody: "User created",
+			ExpectedCode: http.StatusCreated,
+			ExpectedBody: "User created",
 		},
 		{
-			name: "Duplicate email",
-			reqBody: map[string]string{
+			Name: "Duplicate email",
+			ReqBody: map[string]string{
 				"email":        "test@example.com", // already exists after the first test
 				"country_code": "BAD",
 			},
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "Email already taken",
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Email already taken",
 		},
 		{
-			name: "Invalid email format",
-			reqBody: map[string]string{
+			Name: "Invalid email format",
+			ReqBody: map[string]string{
 				"email":        "invalidemail@gmail",
 				"country_code": "BAD",
 			},
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "Invalid Email",
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Invalid Email",
 		},
 		{
-			name: "Missing country code",
-			reqBody: map[string]string{
+			Name: "Missing country code",
+			ReqBody: map[string]string{
 				"email":        "test@example.com",
 				"country_code": "",
 			},
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "Country Code is required",
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Country Code is required",
 		},
 	}
 
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			// create request body
-			reqBody, err := json.Marshal(tt.reqBody)
-			if err != nil {
-				t.Fatalf("Failed to marshal request body: %v", err)
-			}
-
-			// create request
-			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(reqBody))
-			if err != nil {
-				t.Fatalf("Failed to create request: %v", err)
-			}
-
-			// create response recorder
-			rr := httptest.NewRecorder()
-
-			// create handler
-			handler := http.HandlerFunc(account.RegisterUser(db))
-
-			// serve http
-			handler.ServeHTTP(rr, req)
-
-			// check status code
-			assert.Equal(t, tt.expectedCode, rr.Code)
-
-			// check response body as JSON
-			var response map[string]string
-			if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
-				t.Fatalf("Response body is not valid JSON: %v", err)
-			}
-
-			// check if the "message" field matches the expected body
-			assert.Equal(t, tt.expectedBody, response["message"])
-		})
-	}
+	tests.RunTests(db, t, testCases)
 
 	tests.CleanupTestDB(db) // cleanup database
 }

@@ -1,14 +1,29 @@
 package tests
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"testing"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+// TestCase is a struct used to store expected and returned values when running tests
+type TestCase struct {
+	Name         string
+	ReqBody      interface{}
+	ExpectedCode int
+	ExpectedBody string
+}
 
 // SetupTestDB sets up a connection to the test database
 func SetupTestDB() *gorm.DB {
@@ -86,5 +101,45 @@ func CleanupTestDB(db *gorm.DB) {
 		if err != nil {
 			log.Fatalf("Failed to truncate table %s: %v", table, err)
 		}
+	}
+}
+
+// RunTests interates through the given testCase/s and runs them
+func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase) {
+	for _, tt := range testCases {
+		t.Run(tt.Name, func(t *testing.T) {
+			// create request body
+			reqBody, err := json.Marshal(tt.ReqBody)
+			if err != nil {
+				t.Fatalf("Failed to marshal request body: %v", err)
+			}
+
+			// create request
+			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(reqBody))
+			if err != nil {
+				t.Fatalf("Failed to create request: %v", err)
+			}
+
+			// create response recorder
+			rr := httptest.NewRecorder()
+
+			// create handler
+			handler := http.HandlerFunc(account.RegisterUser(db))
+
+			// serve http
+			handler.ServeHTTP(rr, req)
+
+			// check status code
+			assert.Equal(t, tt.ExpectedCode, rr.Code, "Status code should match")
+
+			// check response body as JSON
+			var response map[string]string
+			if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
+				t.Fatalf("Response body is not valid JSON: %v", err)
+			}
+
+			// check if the "message" field matches the expected body
+			assert.Equal(t, tt.ExpectedBody, response["message"], "Response message should match")
+		})
 	}
 }

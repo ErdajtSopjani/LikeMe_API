@@ -9,11 +9,11 @@ import "time"
 
 // User is used to store generic information on register
 type User struct {
-	ID          int64  `gorm:"primaryKey"`
-	Email       string `gorm:"type:varchar(255);unique;not null"`
-	CountryCode string `gorm:"type:varchar(5);not null"`
-	Verified    bool   `gorm:"not null;default:false"`
-	CreatedAt   string `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	ID          int64     `gorm:"primaryKey"`
+	Email       string    `gorm:"type:varchar(255);unique;not null"`
+	CountryCode string    `gorm:"type:varchar(5);not null"`
+	Verified    bool      `gorm:"not null;default:false"`
+	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 // UserProfile is only created once the email is verified and the user is logged in
