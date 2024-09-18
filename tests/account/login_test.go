@@ -1,27 +1,22 @@
 package account_test
 
-/*
 import (
-	"bytes"
-	"encoding/json"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
+var db *gorm.DB
+
 // Test for RegisterUser handler
 func TestLogin(t *testing.T) {
-	var db *gorm.DB
-
 	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
@@ -36,6 +31,51 @@ func TestLogin(t *testing.T) {
 	// connect to test database
 	db = tests.SetupTestDB()
 
+	// run the raw sql query located in this directory called loginTests.sql via gorm
+	err = db.Exec(tests.ReadSQLFile("loginTests.sql")).Error
+
+	testCases := []tests.TestCase{
+		{
+			Name:         "Empty Code",
+			ReqBody:      map[string]string{},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Empty Code",
+			QueryParams:  "",
+		},
+		{
+			Name:         "Invalid Code",
+			ReqBody:      map[string]string{},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Invalid Code",
+			QueryParams:  "code=1234",
+		},
+		{
+			Name:         "Code Expired",
+			ReqBody:      map[string]string{},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Code Expired",
+			QueryParams:  "code=162508",
+		},
+		{
+			Name:         "No user with ID found",
+			ReqBody:      map[string]string{},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Invalid User Record",
+			QueryParams:  "code=112308",
+		},
+		{
+			Name:         "Successful login",
+			ReqBody:      map[string]string{},
+			ExpectedCode: http.StatusOK,
+			ExpectedBody: "",
+			QueryParams:  "code=5692124",
+		},
+	}
+
+	tests.RunTests(db, t, testCases, "/login", account.Login(db))
+
+	// connect to test database
+	db = tests.SetupTestDB()
+
 	tests.CleanupTestDB(db) // cleanup database
 }
-*/

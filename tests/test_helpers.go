@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,6 +22,7 @@ type TestCase struct {
 	ReqBody      interface{}
 	ExpectedCode int
 	ExpectedBody string
+	QueryParams  string
 }
 
 // SetupTestDB sets up a connection to the test database
@@ -104,8 +104,8 @@ func CleanupTestDB(db *gorm.DB) {
 	}
 }
 
-// RunTests interates through the given testCase/s and runs them
-func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase) {
+// RunTests iterates through the given test cases and runs them using the provided handler
+func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase, baseURL string, handler http.HandlerFunc) {
 	for _, tt := range testCases {
 		t.Run(tt.Name, func(t *testing.T) {
 			// create request body
@@ -114,8 +114,14 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase) {
 				t.Fatalf("Failed to marshal request body: %v", err)
 			}
 
+			// build the full URL (including any query parameters)
+			url := baseURL
+			if tt.QueryParams != "" {
+				url += "?" + tt.QueryParams
+			}
+
 			// create request
-			req, err := http.NewRequest("POST", "/register", bytes.NewBuffer(reqBody))
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 			if err != nil {
 				t.Fatalf("Failed to create request: %v", err)
 			}
@@ -123,14 +129,16 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase) {
 			// create response recorder
 			rr := httptest.NewRecorder()
 
-			// create handler
-			handler := http.HandlerFunc(account.RegisterUser(db))
-
-			// serve http
+			// serve http using the provided handler
 			handler.ServeHTTP(rr, req)
 
-			// check status code
+			// check if status codes match
 			assert.Equal(t, tt.ExpectedCode, rr.Code, "Status code should match")
+
+			// expectedBody can be left empty on unpredicatable responses
+			if tt.ExpectedBody == "" {
+				return
+			}
 
 			// check response body as JSON
 			var response map[string]string

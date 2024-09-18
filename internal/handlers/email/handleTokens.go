@@ -20,10 +20,11 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	}
 
 	verificationToken := &handlers.VerificationToken{
-		UserId:    userId,
-		Token:     confirmationToken,
-		ExpiresAt: time.Now().Add(time.Minute * 10),
+		UserId: userId,
+		Token:  confirmationToken,
 	}
+
+	log.Printf("DEBUG: Attempting to create verification token for userId: %d", userId)
 
 	// save confirmationToken to the database
 	if err := db.Create(&verificationToken).Error; err != nil {

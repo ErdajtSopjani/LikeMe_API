@@ -119,5 +119,5 @@ type VerificationToken struct {
 	Token     string    `gorm:"type:varchar(32);unique;not null"`
 	UserId    int64     `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
-	ExpiresAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP + INTERVAL '1 day'"`
+	ExpiresAt time.Time `gorm:"not null;default:CURRENT_TIMESTAMP + INTERVAL '10 minutes'"`
 }

@@ -36,7 +36,7 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		// get the user record from the database to check if record is valid and get the user id
 		user := handlers.User{}
 		if err := db.Where("id = ?", twoFactor.UserId).First(&user).Error; err != nil {
-			helpers.RespondError(w, "Invalid Record", http.StatusBadRequest)
+			helpers.RespondError(w, "Invalid User Record", http.StatusBadRequest)
 			return
 		}
 
@@ -58,6 +58,6 @@ func Login(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		helpers.RespondJSON(w, http.StatusOK, userToken)
+		helpers.RespondJSON(w, http.StatusOK, "Token: "+userToken)
 	}
 }
