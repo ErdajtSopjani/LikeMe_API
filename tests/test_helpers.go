@@ -58,6 +58,15 @@ func SetupTestDB() *gorm.DB {
 	return db
 }
 
+// ReadSQLFile reads the contents of a SQL file and returns it as a string
+func ReadSQLFile(filePath string) string {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("Failed to read SQL file: %v", err)
+	}
+	return string(content)
+}
+
 func runMigrations(db *gorm.DB) error {
 	// use the already defined table models on the test database
 	return db.AutoMigrate(
