@@ -50,6 +50,6 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		helpers.RespondJSON(w, http.StatusOK, "User Email Verified")
+		helpers.RespondJSON(w, http.StatusOK, "Email Verified")
 	}
 }

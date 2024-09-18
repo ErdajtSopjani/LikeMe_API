@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// HandleRegisterTokens generates a token for email verification and saves it to the database
 func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	// generate a new token
 	confirmationToken := helpers.GenerateToken()
@@ -35,7 +36,7 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	return nil, confirmationToken
 }
 
-// HandleLoginCodes generates a 6 digit code used for email auth
+// HandleLoginCodes generates a 6 digit code used for email auth and saves it to the database
 func HandleLoginCodes(db *gorm.DB, userId int64) (error, int) {
 	loginCode, err := helpers.GenerateCode()
 

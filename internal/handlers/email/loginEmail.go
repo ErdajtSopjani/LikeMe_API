@@ -26,10 +26,10 @@ func SendLoginEmail(db *gorm.DB, userId int64, userEmail string) error {
         <p style="font-size: 16px; color: #555; text-align: center;">Hi there,</p>
         <p style="font-size: 16px; color: #555; text-align: center;">
             You’re just one step away from accessing your account. Click the button below to log in or use the code:
-            <strong>%s</strong>.
+            <strong>%d</strong>.
         </p>
         <div style="text-align: center; margin: 30px 0;">
-            <a href="%s/verify?token=%s"
+            <a href="%s/verify?code=%d"
                 style="background-color: #4CAF50; color: #ffffff; text-decoration: none; padding: 15px 30px; font-size: 16px; border-radius: 5px; display: inline-block;">
                 Click Here to Log In
             </a>
@@ -37,7 +37,7 @@ func SendLoginEmail(db *gorm.DB, userId int64, userEmail string) error {
         <p style="font-size: 14px; color: #777; text-align: center;">
             If the button doesn't work, copy and paste the following URL into your browser:
         </p>
-        <p style="font-size: 14px; color: #4CAF50; word-wrap: break-word; text-align: center;">%s/verify?token=%s</p>
+        <p style="font-size: 14px; color: #4CAF50; word-wrap: break-word; text-align: center;">%s/verify?code=%d</p>
         <p style="font-size: 14px; color: #777; text-align: center;">
             If you encounter any issues, feel free to reply to this email for support.
         </p>
@@ -53,7 +53,7 @@ func SendLoginEmail(db *gorm.DB, userId int64, userEmail string) error {
 
 	loginEmail := &Email{
 		From:             mail.NewEmail("LikeMe", "verify.likeme.dev@gmail.com"),
-		Subject:          fmt.Sprintf("%s is your code to log in to LikeMe", loginCode),
+		Subject:          fmt.Sprintf("%d is your code to log in to LikeMe", loginCode),
 		To:               mail.NewEmail("User", userEmail),
 		PlainTextContent: "Use this code to log in",
 		HTMLContent:      loginEmailHTML,
