@@ -1,23 +1,21 @@
-package account_test
+package email_test
 
 import (
 	"net/http"
 	"testing"
 
-	"gorm.io/gorm"
-
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
-// Test for RegisterUser handler
-func TestLogin(t *testing.T) {
+func ResendVerificationEmail(t *testing.T) {
 	// connect to test database
 	db = tests.SetupTestDB(t)
 
-	// setup the db with the required entries to run login tests
+	// setup the db with the required entries to run tests
 	err := db.Exec(tests.ReadSQLFile("loginTests.sql")).Error
 	if err != nil {
 		t.Fatalf("Failed to run loginTests.sql: %v", err)
@@ -61,5 +59,5 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/login", account.Login(db))
+	tests.RunTests(db, t, testCases, "/login", email.ResendVerificationEmail(db))
 }

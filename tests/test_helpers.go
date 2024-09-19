@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +27,7 @@ type TestCase struct {
 }
 
 // SetupTestDB sets up a connection to the test database
-func SetupTestDB() *gorm.DB {
+func InitTestDB() *gorm.DB {
 	// get test-db variables from env
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
@@ -55,6 +56,23 @@ func SetupTestDB() *gorm.DB {
 	}
 
 	// return test DB connection
+	return db
+}
+
+// SetupDB sets up the environment for the tests
+func SetupTestDB(t *testing.T) *gorm.DB {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file", err)
+	}
+	t.Setenv("DB_HOST", os.Getenv("DB_HOST"))
+	t.Setenv("DB_PORT", os.Getenv("DB_PORT"))
+	t.Setenv("DB_USER", os.Getenv("DB_USER"))
+	t.Setenv("DB_PASSWORD", os.Getenv("DB_PASSWORD"))
+	t.Setenv("DB_TEST_NAME", os.Getenv("DB_TEST_NAME"))
+	t.Setenv("DB_SSLMODE", os.Getenv("DB_SSLMODE"))
+
+	db := InitTestDB()
 	return db
 }
 
@@ -159,4 +177,6 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase, baseURL string, h
 			assert.Equal(t, tt.ExpectedBody, response["message"], "Response message should match")
 		})
 	}
+
+	CleanupTestDB(db) // cleanup database
 }

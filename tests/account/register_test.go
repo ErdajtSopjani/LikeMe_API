@@ -50,6 +50,4 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	tests.RunTests(db, t, testCases, "/register", account.RegisterUser(db))
-
-	tests.CleanupTestDB(db) // cleanup database
 }
