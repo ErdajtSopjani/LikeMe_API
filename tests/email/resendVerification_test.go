@@ -12,7 +12,6 @@ import (
 var db *gorm.DB
 
 func TestResendVerificationEmail(t *testing.T) {
-	println("ResendVerificationEmail tests.....")
 	// connect to test database
 	db = tests.SetupTestDB(t)
 
