@@ -18,14 +18,12 @@ func TestLogin(t *testing.T) {
 	db = tests.SetupTestDB(t)
 
 	// setup the db with the required entries to run login tests
-	err := db.Exec(tests.ReadSQLFile("loginTests.sql")).Error
-	if err != nil {
-		t.Fatalf("Failed to run loginTests.sql: %v", err)
-	}
+	tests.SetupDBEntries("loginTests.sql", db, t)
 
 	testCases := []tests.TestCase{
 		{
 			Name:         "Empty Code",
+			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Empty Code",
@@ -33,6 +31,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			Name:         "Invalid Code",
+			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid Code",
@@ -40,6 +39,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			Name:         "Code Expired",
+			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Code Expired",
@@ -47,6 +47,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			Name:         "No user with ID found",
+			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid User Record",
@@ -54,6 +55,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			Name:         "Successful login",
+			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},
 			ExpectedCode: http.StatusOK,
 			ExpectedBody: "",

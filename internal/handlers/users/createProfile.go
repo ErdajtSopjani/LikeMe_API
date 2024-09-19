@@ -33,11 +33,9 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		var userToken handlers.UserToken
 		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
-			helpers.RespondError(w, "Internal-Server Error...", http.StatusInternalServerError)
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-
-		log.Println("user with token found: ", r.Header.Get("Authorization"), " ", userToken.UserId)
 
 		userProfile := handlers.UserProfile{
 			Username:       req.Username,
@@ -48,15 +46,15 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 			UserId:         userToken.UserId,
 		}
 
-		// check if the username is taken
-		if !helpers.CheckUnique(db, "username", userProfile.Username, "user_profiles") {
-			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)
+		// check if any field is empty except for bio
+		if req.Username == "" || req.FirstName == "" || req.LastName == "" {
+			helpers.RespondError(w, "All fields are required", http.StatusBadRequest)
 			return
 		}
 
-		// check if any field is empty except for bio
-		if userProfile.Username == "" || userProfile.FirstName == "" || userProfile.LastName == "" || userProfile.ProfilePicture == "" {
-			helpers.RespondError(w, "All fields are required", http.StatusBadRequest)
+		// check if the username is taken
+		if !helpers.CheckUnique(db, "username", userProfile.Username, "user_profiles") {
+			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)
 			return
 		}
 

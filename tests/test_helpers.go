@@ -20,6 +20,7 @@ import (
 // TestCase is a struct used to store expected and returned values when running tests
 type TestCase struct {
 	Name         string
+	ReqHeaders   interface{}
 	ReqBody      interface{}
 	ExpectedCode int
 	ExpectedBody string
@@ -76,13 +77,17 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// ReadSQLFile reads the contents of a SQL file and returns it as a string
-func ReadSQLFile(filePath string) string {
+// SetupDBEntries reads a SQL file required for tests and executes it
+func SetupDBEntries(filePath string, db *gorm.DB, t *testing.T) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("Failed to read SQL file: %v", err)
 	}
-	return string(content)
+
+	err = db.Exec(string(content)).Error
+	if err != nil {
+		t.Fatalf("Failed to run SQL file: %v", err)
+	}
 }
 
 func runMigrations(db *gorm.DB) error {
@@ -147,10 +152,14 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase, baseURL string, h
 				url += "?" + tt.QueryParams
 			}
 
-			// create request
+			// create request with body and headers
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 			if err != nil {
 				t.Fatalf("Failed to create request: %v", err)
+			}
+
+			for key, value := range tt.ReqHeaders.(map[string]string) {
+				req.Header.Set(key, value)
 			}
 
 			// create response recorder

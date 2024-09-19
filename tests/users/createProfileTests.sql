@@ -8,20 +8,16 @@ INSERT INTO users (
     1,
     'erdajtsopjani.tech@gmail.com',
     'RKS',
-    FALSE,
+    TRUE,
     '2024-09-17 00:13:33'
 );
 
-INSERT INTO users (
-    id,
-    email,
-    country_code,
-    verified,
+INSERT INTO user_tokens (
+    user_id,
+    token,
     created_at
 ) VALUES (
-    2,
-    'verified-email@gmail.com',
-    'RKS',
-    TRUE,
+    1,
+    'jUy2Iti6p3GqQxp0TjwrGA==',
     '2024-09-17 00:13:33'
-)
+);

@@ -6,24 +6,19 @@ import (
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
-	"gorm.io/gorm"
 )
-
-var db *gorm.DB
 
 func TestResendVerificationEmail(t *testing.T) {
 	// connect to test database
-	db = tests.SetupTestDB(t)
+	db := tests.SetupTestDB(t)
 
 	// setup the db with the required entries to run tests
-	err := db.Exec(tests.ReadSQLFile("resendVerificationTests.sql")).Error
-	if err != nil {
-		t.Fatalf("Failed to run resendVerificationTests.sql: %v", err)
-	}
+	tests.SetupDBEntries("resendVerificationTests.sql", db, t)
 
 	testCases := []tests.TestCase{
 		{
-			Name: "Email not found",
+			Name:       "Email not found",
+			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
 				"email": "invalidmail@mailmail.com",
 			},
@@ -32,7 +27,8 @@ func TestResendVerificationEmail(t *testing.T) {
 			QueryParams:  "",
 		},
 		{
-			Name: "Already Verified",
+			Name:       "Already Verified",
+			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
 				"email": "verified-email@gmail.com",
 			},
@@ -41,7 +37,8 @@ func TestResendVerificationEmail(t *testing.T) {
 			QueryParams:  "",
 		},
 		{
-			Name: "Successful Resend",
+			Name:       "Successful Resend",
+			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
 				"email": "erdajtsopjani.tech@gmail.com",
 			},
