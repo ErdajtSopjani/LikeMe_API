@@ -25,8 +25,6 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 		Token:  confirmationToken,
 	}
 
-	log.Printf("DEBUG: Attempting to create verification token for userId: %d", userId)
-
 	// save confirmationToken to the database
 	if err := db.Create(&verificationToken).Error; err != nil {
 		log.Println("ERROR\n\tFailed to save verification token: ", err)

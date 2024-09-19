@@ -10,24 +10,28 @@ import (
 
 // Test for RegisterUser handler
 func TestRegisterUser(t *testing.T) {
-	db := tests.SetupTestDB(t)
+	db := tests.SetupTestDB(t) // connect to db
+
+	// setup db with the required entries to run tests
+	tests.SetupDBEntries("registerTests.sql", db, t)
 
 	testCases := []tests.TestCase{
 		{
 			Name:       "Create valid user",
 			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
-				"email":        "test@example.com",
-				"country_code": "OK",
+				"email":        "erdajttest@gmail.com",
+				"country_code": "RKS",
 			},
 			ExpectedCode: http.StatusCreated,
 			ExpectedBody: "User created",
+			QueryParams:  "",
 		},
 		{
 			Name:       "Duplicate email",
 			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
-				"email":        "test@example.com", // already exists after the first test
+				"email":        "erdajtsopjani.tech@gmail.com",
 				"country_code": "BAD",
 			},
 			ExpectedCode: http.StatusBadRequest,

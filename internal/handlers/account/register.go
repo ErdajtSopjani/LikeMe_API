@@ -57,7 +57,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 
 		// create the user
 		if err := db.Create(&user).Error; err != nil {
-			helpers.RespondError(w, "Internal Server Error...", http.StatusInternalServerError)
+			helpers.RespondError(w, err, http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to create user:%v\n\tError: %s\n\n", user, err)
 			return
 		}

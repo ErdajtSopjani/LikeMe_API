@@ -79,6 +79,8 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 
 // SetupDBEntries reads a SQL file required for tests and executes it
 func SetupDBEntries(filePath string, db *gorm.DB, t *testing.T) {
+	CleanupTestDB(db)
+
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("Failed to read SQL file: %v", err)
@@ -186,6 +188,4 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase, baseURL string, h
 			assert.Equal(t, tt.ExpectedBody, response["message"], "Response message should match")
 		})
 	}
-
-	CleanupTestDB(db) // cleanup database
 }

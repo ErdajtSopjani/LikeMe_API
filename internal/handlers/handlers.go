@@ -9,7 +9,8 @@ import "time"
 
 // User is used to store generic information on register
 type User struct {
-	ID          int64     `gorm:"primaryKey"`
+	// ID is bigserial and is the primary key
+	ID          int64     `gorm:"type:bigserial;primaryKey"`
 	Email       string    `gorm:"type:varchar(255);unique;not null"`
 	CountryCode string    `gorm:"type:varchar(5);not null"`
 	Verified    bool      `gorm:"not null;default:false"`

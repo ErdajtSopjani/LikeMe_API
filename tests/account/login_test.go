@@ -4,18 +4,13 @@ import (
 	"net/http"
 	"testing"
 
-	"gorm.io/gorm"
-
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
-var db *gorm.DB
-
 // Test for RegisterUser handler
 func TestLogin(t *testing.T) {
-	// connect to test database
-	db = tests.SetupTestDB(t)
+	db := tests.SetupTestDB(t) // connect to db
 
 	// setup the db with the required entries to run login tests
 	tests.SetupDBEntries("loginTests.sql", db, t)

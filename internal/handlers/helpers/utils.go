@@ -7,10 +7,10 @@ import (
 )
 
 // RespondError returns an error message as response
-func RespondError(w http.ResponseWriter, message string, status int) {
+func RespondError(w http.ResponseWriter, message any, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"message": message})
+	json.NewEncoder(w).Encode(map[string]any{"message": message})
 	log.Printf("Error: %s, Status: %d", message, status)
 }
 

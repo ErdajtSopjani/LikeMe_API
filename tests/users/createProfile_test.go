@@ -71,7 +71,7 @@ func TestCreateProfile(t *testing.T) {
 		{
 			Name: "Username already taken",
 			ReqHeaders: map[string]string{
-				"Authorization": "gsa2I2kja3GqQxp0TKhj1A==",
+				"Authorization": "jUy2Iti6p3GqQxp0Tj1234==",
 				"Content-Type":  "application/json",
 			},
 			ReqBody: map[string]string{
