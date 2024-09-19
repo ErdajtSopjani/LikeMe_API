@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// RespondError function to return error message as response
+// RespondError returns an error message as response
 func RespondError(w http.ResponseWriter, message string, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

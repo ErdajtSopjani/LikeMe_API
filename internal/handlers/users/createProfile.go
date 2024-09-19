@@ -52,6 +52,12 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
+		// check if the user already has a profile
+		if !helpers.CheckUnique(db, "user_id", userProfile.UserId, "user_profiles") {
+			helpers.RespondError(w, "User already has a profile", http.StatusBadRequest)
+			return
+		}
+
 		// check if the username is taken
 		if !helpers.CheckUnique(db, "username", userProfile.Username, "user_profiles") {
 			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)

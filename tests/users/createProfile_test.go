@@ -51,9 +51,27 @@ func TestCreateProfile(t *testing.T) {
 			QueryParams:  "",
 		},
 		{
-			Name: "Username taken",
+			Name: "User already has a profile",
 			ReqHeaders: map[string]string{
 				"Authorization": "jUy2Iti6p3GqQxp0TjwrGA==",
+				"Content-Type":  "application/json",
+			},
+			ReqBody: map[string]string{
+				"username":        "erdajttsopjani",
+				"first_name":      "Erdajt",
+				"last_name":       "Sopjani",
+				"profile_picture": "base64_image_here",
+				"bio":             "null",
+			},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "User already has a profile",
+			QueryParams:  "",
+			// gsa2I2kja3GqQxp0TKhj1A==
+		},
+		{
+			Name: "Username already taken",
+			ReqHeaders: map[string]string{
+				"Authorization": "gsa2I2kja3GqQxp0TKhj1A==",
 				"Content-Type":  "application/json",
 			},
 			ReqBody: map[string]string{
