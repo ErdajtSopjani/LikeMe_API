@@ -18,6 +18,8 @@ import (
 var app config.AppConfig
 var db *gorm.DB
 
+// TODO: check if the user_id and the token match in every needed endpoint
+
 func init() {
 	app.IsProd = false
 
