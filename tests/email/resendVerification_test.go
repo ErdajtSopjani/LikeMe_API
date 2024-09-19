@@ -12,52 +12,58 @@ import (
 var db *gorm.DB
 
 func ResendVerificationEmail(t *testing.T) {
+	println("ResendVerificationEmail tests.....")
 	// connect to test database
 	db = tests.SetupTestDB(t)
 
 	// setup the db with the required entries to run tests
-	err := db.Exec(tests.ReadSQLFile("loginTests.sql")).Error
+	err := db.Exec(tests.ReadSQLFile("resendVerificationTests.sql")).Error
 	if err != nil {
 		t.Fatalf("Failed to run loginTests.sql: %v", err)
 	}
 
 	testCases := []tests.TestCase{
 		{
-			Name:         "Empty Code",
-			ReqBody:      map[string]string{},
+			Name: "Email not found",
+			ReqBody: map[string]string{
+				"email":   "invalidmail@mailmail.com",
+				"user_id": "1",
+			},
 			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Empty Code",
+			ExpectedBody: "Email not found",
 			QueryParams:  "",
 		},
 		{
-			Name:         "Invalid Code",
-			ReqBody:      map[string]string{},
+			Name: "Invalid UserId",
+			ReqBody: map[string]string{
+				"email":   "erdajtsopjani.tech@gmail.com",
+				"user_id": "123123",
+			},
 			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Invalid Code",
-			QueryParams:  "code=1234",
+			ExpectedBody: "User not found",
+			QueryParams:  "",
 		},
 		{
-			Name:         "Code Expired",
-			ReqBody:      map[string]string{},
+			Name: "Already Verified User",
+			ReqBody: map[string]string{
+				"email":   "verified-email@gmail.com",
+				"user_id": "2",
+			},
 			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Code Expired",
-			QueryParams:  "code=162508",
+			ExpectedBody: "User already verified",
+			QueryParams:  "",
 		},
 		{
-			Name:         "No user with ID found",
-			ReqBody:      map[string]string{},
-			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Invalid User Record",
-			QueryParams:  "code=112308",
-		},
-		{
-			Name:         "Successful login",
-			ReqBody:      map[string]string{},
+			Name: "Successful Resend",
+			ReqBody: map[string]string{
+				"email":   "erdajtsopjani.tech@gmail.com",
+				"user_id": "1",
+			},
 			ExpectedCode: http.StatusOK,
-			ExpectedBody: "",
-			QueryParams:  "code=5692124",
+			ExpectedBody: "Email sent",
+			QueryParams:  "",
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/login", email.ResendVerificationEmail(db))
+	tests.RunTests(db, t, testCases, "/email/resend/register", email.ResendVerificationEmail(db))
 }
