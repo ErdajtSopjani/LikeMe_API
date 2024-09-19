@@ -12,11 +12,11 @@ import (
 
 // CreateProfileRequest is the structure of the request body for the createProfile endpoint
 type CreateProfileRequest struct {
-	Username       string `json:"username"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	ProfilePicture string `json:"profile_picture"`
-	Bio            string `json:"bio"`
+	Username       string
+	FirstName      string
+	LastName       string
+	ProfilePicture string
+	Bio            string
 }
 
 // CreateProfile creates the user profile after verification
@@ -40,7 +40,7 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 
 		log.Println("user with token found: ", r.Header.Get("Authorization"), " ", userToken.UserId)
 
-		userProfile := handlers.UserProfile{
+		UserProfile := handlers.UserProfile{
 			Username:       req.Username,
 			FirstName:      req.FirstName,
 			LastName:       req.LastName,
@@ -50,19 +50,19 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if the username is taken
-		if !helpers.CheckUnique(db, "username", userProfile.Username, "user_profiles") {
+		if !helpers.CheckUnique(db, "username", UserProfile.Username, "user_profiles") {
 			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)
 			return
 		}
 
 		// check if any field is empty except for bio
-		if userProfile.Username == "" || userProfile.FirstName == "" || userProfile.LastName == "" || userProfile.ProfilePicture == "" {
+		if UserProfile.Username == "" || UserProfile.FirstName == "" || UserProfile.LastName == "" || UserProfile.ProfilePicture == "" {
 			helpers.RespondError(w, "All fields are required", http.StatusBadRequest)
 			return
 		}
 
 		// create user profile
-		if err := db.Create(&userProfile).Error; err != nil { // if profile creation fails
+		if err := db.Create(&UserProfiles).Error; err != nil { // if profile creation fails
 			helpers.RespondError(w, "Internal-Server Error...", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to create user profile: %s\n\n", err)
 			return
