@@ -11,7 +11,7 @@ import (
 
 var db *gorm.DB
 
-func ResendVerificationEmail(t *testing.T) {
+func TestResendVerificationEmail(t *testing.T) {
 	println("ResendVerificationEmail tests.....")
 	// connect to test database
 	db = tests.SetupTestDB(t)
@@ -19,35 +19,23 @@ func ResendVerificationEmail(t *testing.T) {
 	// setup the db with the required entries to run tests
 	err := db.Exec(tests.ReadSQLFile("resendVerificationTests.sql")).Error
 	if err != nil {
-		t.Fatalf("Failed to run loginTests.sql: %v", err)
+		t.Fatalf("Failed to run resendVerificationTests.sql: %v", err)
 	}
 
 	testCases := []tests.TestCase{
 		{
 			Name: "Email not found",
 			ReqBody: map[string]string{
-				"email":   "invalidmail@mailmail.com",
-				"user_id": "1",
+				"email": "invalidmail@mailmail.com",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Email not found",
 			QueryParams:  "",
 		},
 		{
-			Name: "Invalid UserId",
+			Name: "Already Verified",
 			ReqBody: map[string]string{
-				"email":   "erdajtsopjani.tech@gmail.com",
-				"user_id": "123123",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "User not found",
-			QueryParams:  "",
-		},
-		{
-			Name: "Already Verified User",
-			ReqBody: map[string]string{
-				"email":   "verified-email@gmail.com",
-				"user_id": "2",
+				"email": "verified-email@gmail.com",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "User already verified",
@@ -56,8 +44,7 @@ func ResendVerificationEmail(t *testing.T) {
 		{
 			Name: "Successful Resend",
 			ReqBody: map[string]string{
-				"email":   "erdajtsopjani.tech@gmail.com",
-				"user_id": "1",
+				"email": "erdajtsopjani.tech@gmail.com",
 			},
 			ExpectedCode: http.StatusOK,
 			ExpectedBody: "Email sent",

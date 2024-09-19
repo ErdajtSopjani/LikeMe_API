@@ -11,8 +11,7 @@ import (
 )
 
 type ResendRequest struct {
-	Email  string `json:"email"`
-	UserId int64  `json:"user_id"`
+	Email string `json:"email"`
 }
 
 // ResendVerificationEmail resends verification email and deletes the old one from the database
@@ -36,6 +35,13 @@ func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Re
 		if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
 			helpers.RespondError(w, "User not found", http.StatusBadRequest)
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, req, err)
+			return
+		}
+
+		// check if user is already verified
+		if user.Verified {
+			helpers.RespondError(w, "User already verified", http.StatusBadRequest)
+			log.Printf("\n\nBAD\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, req, "User %s already verified", req.Email)
 			return
 		}
 

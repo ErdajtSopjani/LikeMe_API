@@ -2,40 +2,34 @@ INSERT INTO users (
     id,
     email,
     country_code,
-    verified,
-    created_at
+    verified
 ) VALUES (
     1,
     'erdajtsopjani.tech@gmail.com',
     'RKS',
-    FALSE,
-    CURRENT_TIMESTAMP
+    FALSE
 );
 
 INSERT INTO users (
     id,
     email,
     country_code,
-    verified,
-    created_at
+    verified
 ) VALUES (
     2,
     'verified-email@gmail.com',
     'RKS',
-    TRUE,
-    CURRENT_TIMESTAMP
+    TRUE
 );
 
 INSERT INTO users (
     id,
     email,
     country_code,
-    verified,
-    created_at
+    verified
 ) VALUES (
     3,
     'spammail@mail.com' ,
     'RKS',
-    FALSE,
-    CURRENT_TIMESTAMP
+    FALSE
 );
