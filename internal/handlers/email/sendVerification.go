@@ -17,7 +17,6 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 		return err
 	}
 
-	println("confirmationToken: ", confirmationToken)
 	var verifyEmail string = fmt.Sprintf(`
 <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
