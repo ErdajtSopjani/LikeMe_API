@@ -59,13 +59,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// respond with status created and the new follow record
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-
-		if err := json.NewEncoder(w).Encode(follow); err != nil {
-			log.Printf("\n\nERROR\n\tFailed to encode follow: %v\n\tError: %s\n\n", follow, err)
-			helpers.RespondError(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+		// convert follow to string to pass it as the last argument
+		helpers.RespondJSON(w, http.StatusCreated, "Follow successfully created")
 	}
 }

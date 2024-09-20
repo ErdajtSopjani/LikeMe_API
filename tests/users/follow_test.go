@@ -60,7 +60,7 @@ func TestFollow(t *testing.T) {
 		}, {
 			Name: "Follow already exists",
 			ReqHeaders: map[string]string{
-				"Authorization": "token1",
+				"Authorization": "token2",
 				"Content-Type":  "application/json",
 			},
 			ReqBody: map[string]int{
@@ -81,7 +81,7 @@ func TestFollow(t *testing.T) {
 				"following_id": 2,
 			},
 			ExpectedCode: http.StatusCreated,
-			ExpectedBody: "",
+			ExpectedBody: "Follow successfully created",
 			QueryParams:  "",
 		},
 	}
