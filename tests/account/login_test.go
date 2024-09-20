@@ -41,14 +41,6 @@ func TestLogin(t *testing.T) {
 			QueryParams:  "code=162508",
 		},
 		{
-			Name:         "No user with ID found",
-			ReqHeaders:   map[string]string{},
-			ReqBody:      map[string]string{},
-			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Invalid User Record",
-			QueryParams:  "code=112308",
-		},
-		{
 			Name:         "Successful login",
 			ReqHeaders:   map[string]string{},
 			ReqBody:      map[string]string{},

@@ -1,20 +1,33 @@
 package users_test
 
 import (
+	"log"
 	"net/http"
 	"testing"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	_users "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
-func TestResendVerificationEmail(t *testing.T) {
+func TestFollow(t *testing.T) {
 	// connect to test database
 	db := tests.SetupTestDB(t)
 
 	// setup the db with the required entries to run tests
 	tests.SetupDBEntries("followTests.sql", db, t)
+
+	var users []handlers.User
+	db.Find(&users)
+	log.Printf("\n\n\n\n\n\n\nUsers after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", users)
+
+	var user_tokens []handlers.UserToken
+	db.Find(&user_tokens)
+	log.Printf("\n\n\n\n\n\n\nUser Tokens after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", user_tokens)
+
+	var follows []handlers.Follow
+	db.Find(&follows)
+	log.Printf("\n\n\n\n\n\n\nFollows after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", follows)
 
 	testCases := []tests.TestCase{
 		{
@@ -23,26 +36,26 @@ func TestResendVerificationEmail(t *testing.T) {
 				"Authorization": "token1",
 				"Content-Type":  "application/json",
 			},
-			ReqBody: map[string]string{
-				"follower_id": "4",
-				"followed_id": "5",
+			ReqBody: map[string]int{
+				"follower_id":  4,
+				"following_id": 5,
 			},
 			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Invalid following or follower id",
+			ExpectedBody: "Invalid follower or following ID",
 			QueryParams:  "",
 		},
 		{
 			Name: "Token and User don't match",
 			ReqHeaders: map[string]string{
-				"Authorization": "token2",
+				"Authorization": "token1",
 				"Content-Type":  "application/json",
 			},
-			ReqBody: map[string]string{
-				"follower_id": "1",
-				"followed_id": "2",
+			ReqBody: map[string]interface{}{
+				"follower_id":  3,
+				"following_id": 2,
 			},
 			ExpectedCode: http.StatusUnauthorized,
-			ExpectedBody: "Invalid user or token",
+			ExpectedBody: "Unauthorized",
 			QueryParams:  "",
 		}, {
 			Name: "Follow already exists",
@@ -50,9 +63,9 @@ func TestResendVerificationEmail(t *testing.T) {
 				"Authorization": "token1",
 				"Content-Type":  "application/json",
 			},
-			ReqBody: map[string]string{
-				"follower_id": "2",
-				"followed_id": "3",
+			ReqBody: map[string]int{
+				"follower_id":  2,
+				"following_id": 3,
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Follow already exists",
@@ -63,9 +76,9 @@ func TestResendVerificationEmail(t *testing.T) {
 				"Authorization": "token1",
 				"Content-Type":  "application/json",
 			},
-			ReqBody: map[string]string{
-				"follower_id": "1",
-				"followed_id": "2",
+			ReqBody: map[string]int{
+				"follower_id":  1,
+				"following_id": 2,
 			},
 			ExpectedCode: http.StatusCreated,
 			ExpectedBody: "",
@@ -73,5 +86,5 @@ func TestResendVerificationEmail(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/api/v1/follow", users.FollowAccount(db))
+	tests.RunTests(db, t, testCases, "/api/v1/follow", _users.FollowAccount(db))
 }

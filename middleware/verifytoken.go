@@ -38,13 +38,21 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 
 			var userToken UserToken
 
+			// parse the token expires at from string to time
+			tokenExpiresAt, err := time.Parse(time.RFC3339, userToken.ExpiresAt.String())
+			if err != nil {
+				log.Println("Failed to parse token expiration time: ", err)
+				helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
 			// query database to check if token exists
-			err := db.Select("token", "expires_at").Where("token = ?", token).First(&userToken).Error
+			err = db.Select("token", "expires_at").Where("token = ?", token).First(&userToken).Error
 			if err != nil {
 				if err == gorm.ErrRecordNotFound { // if token is not found
 					log.Println("Unauthorized request from: ", r.RemoteAddr)
 					helpers.RespondError(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
-				} else if userToken.ExpiresAt.Before(time.Now()) { // if token is expired
+				} else if tokenExpiresAt.Before(time.Now()) { // if token is expired
 					helpers.RespondError(w, "Unauthorized: Token has expired", http.StatusUnauthorized)
 				} else {
 					helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)

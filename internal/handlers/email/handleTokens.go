@@ -3,7 +3,6 @@ package email
 import (
 	"errors"
 	"log"
-	"time"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
@@ -20,9 +19,12 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 		return errors.New("Failed to generate token for user: "), ""
 	}
 
+	// create and save a token that's available for 10 minutes
 	verificationToken := &handlers.VerificationToken{
-		UserId: userId,
-		Token:  confirmationToken,
+		UserId:    userId,
+		Token:     helpers.GenerateToken(),
+		CreatedAt: &handlers.Now,
+		ExpiresAt: &handlers.VerificationExpiresAt,
 	}
 
 	// save confirmationToken to the database
@@ -46,7 +48,8 @@ func HandleLoginCodes(db *gorm.DB, userId int64) (error, int) {
 	twoFactor := &handlers.TwoFactor{
 		UserId:    userId,
 		Code:      loginCode,
-		ExpiresAt: time.Now().Add(time.Minute * 10),
+		CreatedAt: &handlers.Now,
+		ExpiresAt: &handlers.VerificationExpiresAt,
 	}
 
 	// save loginCode to the database

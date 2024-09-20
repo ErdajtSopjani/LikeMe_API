@@ -51,6 +51,14 @@ INSERT INTO user_tokens(
     'token2'
 );
 
+INSERT INTO user_tokens(
+    user_id,
+    token
+) VALUES (
+    3,
+    'token3'
+);
+
 INSERT INTO follows(
     follower_id,
     following_id

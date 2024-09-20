@@ -2,26 +2,22 @@ INSERT INTO users (
     id,
     email,
     country_code,
-    verified,
-    created_at
+    verified
 ) VALUES (
-    1,
+    2,
     'erdajtsopjani.tech@gmail.com',
     'RKS',
-    FALSE,
-    '2024-09-17 00:13:33'
+    FALSE
 );
 
 INSERT INTO users (
     id,
     email,
     country_code,
-    verified,
-    created_at
+    verified
 ) VALUES (
-    2,
+    3,
     'verified-email@gmail.com',
     'RKS',
-    TRUE,
-    '2024-09-17 00:13:33'
+    TRUE
 )

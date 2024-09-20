@@ -27,8 +27,10 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		if err := db.Where("code = ?", code).First(&twoFactor).Error; err != nil {
 			helpers.RespondError(w, "Invalid Code", http.StatusBadRequest)
 			return
-		} else if twoFactor.ExpiresAt.Before(time.Now()) {
-			log.Println(twoFactor.ExpiresAt)
+		}
+
+		if twoFactor.ExpiresAt.Before(time.Now()) {
+			log.Println("Code expired at:", twoFactor.ExpiresAt)
 			helpers.RespondError(w, "Code Expired", http.StatusBadRequest)
 			return
 		}
@@ -51,7 +53,8 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		userTokenRecord := handlers.UserToken{
 			Token:     userToken,
 			UserId:    user.ID,
-			ExpiresAt: time.Now().Add(time.Hour * 24 * 30), // token expires in 30 days
+			CreatedAt: &handlers.Now,
+			ExpiresAt: &handlers.TokenExpiresAt,
 		}
 		if err := db.Create(&userTokenRecord).Error; err != nil { // if saving token fails
 			helpers.RespondError(w, "Failed to save token", http.StatusInternalServerError)

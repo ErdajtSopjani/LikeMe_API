@@ -47,6 +47,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		user := &handlers.User{
 			Email:       req.Email,
 			CountryCode: req.CountryCode,
+			CreatedAt:   &handlers.Now,
 		}
 
 		// check if the email exists in the database
@@ -71,21 +72,8 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// create and save a token for the user
-		userTokens := &handlers.VerificationToken{
-			UserId: userId,
-			Token:  helpers.GenerateToken(),
-		}
-
-		// create email verification token
-		if err := db.Create(&userTokens).Error; err != nil || userTokens.Token == "" {
-			// if the token is not saved or created
-			helpers.RespondError(w, "Internal Server Error...", http.StatusInternalServerError)
-			log.Printf("\n\nERROR\n\tFailed to create or save token for user: %v\n\tError: %s\n\n", user, err)
-			return
-		}
-
 		// send the confirmation email
+		// NOTE: this will also create and save a token available for 10 minutes that the user can use to verify their email
 		if err := email.SendConfirmation(db, user.Email, userId); err != nil {
 			helpers.RespondError(w, "Internal Server Error.", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)

@@ -10,10 +10,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type FollowRequest struct {
+	FollowerId  int64 `json:"follower_id"`
+	FollowingId int64 `json:"following_id"`
+}
+
 // FollowAccount is a handler that checks if both users exist and creates a new follow in the database
 func FollowAccount(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req handlers.Follow
+		var req FollowRequest
 
 		// decode request body
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -25,15 +30,14 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		// check if both users exist
 		var count int64
 		db.Table("users").Where("id IN (?, ?)", req.FollowerId, req.FollowingId).Count(&count)
-		if count != 2 { // If both users don't exist
+		if count != 2 {
 			helpers.RespondError(w, "Invalid follower or following ID", http.StatusBadRequest)
 			return
 		}
 
-		// verify the token is associated with the follower_id
-		var userToken handlers.UserToken
-		if err := db.Where("user_id = ? AND token = ?", req.FollowerId, r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
-			helpers.RespondError(w, "Invalid user or token", http.StatusUnauthorized)
+		// check if token and userId match
+		if !helpers.CheckTokenMatch(db, req.FollowerId, r.Header.Get("Authorization")) {
+			helpers.RespondError(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 

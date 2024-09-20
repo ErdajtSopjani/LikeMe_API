@@ -11,7 +11,6 @@ import (
 func TestCreateProfile(t *testing.T) {
 	// connect to test database
 	db := tests.SetupTestDB(t)
-	tests.CleanupTestDB(db)
 
 	// setup the db with the required entries to run login tests
 	tests.SetupDBEntries("createProfileTests.sql", db, t)
