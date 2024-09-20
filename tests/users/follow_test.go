@@ -1,11 +1,9 @@
 package users_test
 
 import (
-	"log"
 	"net/http"
 	"testing"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	_users "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
