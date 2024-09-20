@@ -13,20 +13,20 @@ import (
 func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	// generate a new token
 	confirmationToken := helpers.GenerateToken()
-
 	if confirmationToken == "" {
 		log.Printf("\n\nERROR\n\tFailed to generate token for user: %v\n\n", userId)
 		return errors.New("Failed to generate token for user: "), ""
 	}
 
-	// create and save a token that's available for 10 minutes
+	// create and save the token that's available for 10 minutes
 	verificationToken := &handlers.VerificationToken{
 		UserId:    userId,
-		Token:     helpers.GenerateToken(),
+		Token:     confirmationToken,
 		CreatedAt: &handlers.Now,
 		ExpiresAt: &handlers.VerificationExpiresAt,
 	}
 
+	println("verificationToken: ", verificationToken.Token)
 	// save confirmationToken to the database
 	if err := db.Create(&verificationToken).Error; err != nil {
 		log.Println("ERROR\n\tFailed to save verification token: ", err)

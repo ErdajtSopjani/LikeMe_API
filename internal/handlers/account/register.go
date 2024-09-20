@@ -43,7 +43,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// Create a new user in the database
+		// create a new user structure
 		user := &handlers.User{
 			Email:       req.Email,
 			CountryCode: req.CountryCode,
@@ -56,7 +56,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// create the user
+		// save the user to the database
 		if err := db.Create(&user).Error; err != nil {
 			helpers.RespondError(w, err, http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to create user:%v\n\tError: %s\n\n", user, err)
