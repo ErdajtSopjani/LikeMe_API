@@ -17,18 +17,6 @@ func TestFollow(t *testing.T) {
 	// setup the db with the required entries to run tests
 	tests.SetupDBEntries("followTests.sql", db, t)
 
-	var users []handlers.User
-	db.Find(&users)
-	log.Printf("\n\n\n\n\n\n\nUsers after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", users)
-
-	var user_tokens []handlers.UserToken
-	db.Find(&user_tokens)
-	log.Printf("\n\n\n\n\n\n\nUser Tokens after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", user_tokens)
-
-	var follows []handlers.Follow
-	db.Find(&follows)
-	log.Printf("\n\n\n\n\n\n\nFollows after SetupDBEntries: %+v\n\n\n\n\n\n\n\n\n", follows)
-
 	testCases := []tests.TestCase{
 		{
 			Name: "Invalid Users",
