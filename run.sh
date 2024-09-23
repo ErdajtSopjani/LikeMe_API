@@ -11,7 +11,14 @@ else
     echo "PostgreSQL service is already running."
 fi
 
-# Run Docker Compose services in detached mode.
+# Test via go tests then Run Docker Compose services in detached mode.
+echo "Running tests..."
+go test -v ./...
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Exiting..."
+    exit 1
+fi
+echo "Tests passed."
 echo "Starting Docker Compose services..."
 docker-compose up -d
 

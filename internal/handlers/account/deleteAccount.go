@@ -35,15 +35,24 @@ func DeleteAccount(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// check if the token is valid
-		if helpers.CheckUnique(db, "token", token, "user_tokens") {
+		// get the userId from the email
+		var user handlers.User
+		if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+			helpers.RespondError(w, "User not found", http.StatusBadRequest)
+			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", req, err)
+		}
+
+		// check if the token with the user id exists
+		if err := db.Where("token = ? AND user_id = ?", token, user.ID).First(&handlers.UserToken{}).Error; err != nil {
 			helpers.RespondError(w, "Invalid Token", http.StatusBadRequest)
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, req, "Invalid Token")
 			return
 		}
 
-		err := deleteAllData(db, w, req)
+		err := deleteAllData(db, w, req, user)
 		if err != nil {
+			helpers.RespondError(w, "Failed to delete user data", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to delete user data: %v\n\tError: %s\n\n", req, err)
 			return
 		}
 
@@ -53,19 +62,10 @@ func DeleteAccount(db *gorm.DB) http.HandlerFunc {
 }
 
 // deleteAllData deletes all data associated to a user in all columns
-func deleteAllData(db *gorm.DB, w http.ResponseWriter, req DeleteRequest) error {
+func deleteAllData(db *gorm.DB, w http.ResponseWriter, req DeleteRequest, user handlers.User) error {
 	// begin a db transaction
 	tx := db.Begin()
 
-	// get the userId from the email
-	var user handlers.User
-	if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
-		helpers.RespondError(w, "User not found", http.StatusBadRequest)
-		log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", req, err)
-		return err
-	}
-
-	// delete associated records
 	tablesToDeleteFrom := []string{
 		"user_profiles", "user_tokens", "user_interests", "follows",
 		"blocked_users", "posts", "likes", "comments", "messages",
@@ -75,25 +75,22 @@ func deleteAllData(db *gorm.DB, w http.ResponseWriter, req DeleteRequest) error 
 	for _, table := range tablesToDeleteFrom {
 		if table == "follows" {
 			// Delete records where the user is the follower or the following
-			if err := tx.Table(table).Where("follower_id = ? OR following_id = ?", user.ID, user.ID).Delete(nil).Error; err != nil {
+			if err := tx.Table(table).Where("follower_id = ? OR following_id = ?", user.ID, user.ID).Delete(nil).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				tx.Rollback()
-				helpers.RespondError(w, "Failed to delete follow data", http.StatusInternalServerError)
 				log.Printf("Error deleting from table %s for user_id %d: %s", table, user.ID, err)
 				return err
 			}
 		} else if table == "messages" {
 			// Delete messages where the user is the sender or receiver
-			if err := tx.Table(table).Where("sender_id = ? OR receiver_id = ?", user.ID, user.ID).Delete(nil).Error; err != nil {
+			if err := tx.Table(table).Where("sender_id = ? OR receiver_id = ?", user.ID, user.ID).Delete(nil).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				tx.Rollback()
-				helpers.RespondError(w, "Failed to delete messages", http.StatusInternalServerError)
 				log.Printf("Error deleting from table %s for user_id %d: %s", table, user.ID, err)
 				return err
 			}
 		} else {
 			// Default deletion logic
-			if err := tx.Table(table).Where("user_id = ?", user.ID).Delete(nil).Error; err != nil {
+			if err := tx.Table(table).Where("user_id = ?", user.ID).Delete(nil).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				tx.Rollback()
-				helpers.RespondError(w, "Failed to delete user data", http.StatusInternalServerError)
 				log.Printf("Error deleting from table %s for user_id %d: %s", table, user.ID, err)
 				return err
 			}
@@ -103,25 +100,12 @@ func deleteAllData(db *gorm.DB, w http.ResponseWriter, req DeleteRequest) error 
 	// delete the user from the users table
 	if err := tx.Delete(&user).Error; err != nil {
 		tx.Rollback()
-		helpers.RespondError(w, "Failed to delete user", http.StatusInternalServerError)
 		log.Printf("Error deleting user %d: %s", user.ID, err)
 		return err
 	}
 
-	// check if the user was deleted
-	for _, table := range tablesToDeleteFrom {
-		if !helpers.CheckUnique(db, "user_id", user.ID, table) {
-			tx.Rollback()
-			helpers.RespondError(w, "Failed to delete user data", http.StatusInternalServerError)
-			log.Printf("Error deleting from table %s for user_id %d", table, user.ID)
-			// return a new error
-			return errors.New("Error deleting from table")
-		}
-	}
-
 	// commit transaction
 	if err := tx.Commit().Error; err != nil {
-		helpers.RespondError(w, "Transaction failed", http.StatusInternalServerError)
 		log.Printf("Transaction failed for user %d: %s", user.ID, err)
 		return err
 	}

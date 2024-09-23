@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
@@ -55,10 +56,14 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 		To:               mail.NewEmail("User", userEmail),
 		PlainTextContent: "Please verify your email address",
 		HTMLContent:      verifyEmail,
-		client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")),
-	}
+		client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))}
 
-	// TODO: Check if the email and user_id match before sending the email
+	// check if the email and user_id match before sending the email
+	// this is more of a fail-safe since we get the userId directly from the database
+	if err := db.Where("email = ?", userEmail).First(&handlers.User{}).Error; err != nil {
+		log.Printf("\n\nERROR\n\tFailed to find user with email: %v\n\tError: %v\n\n", userEmail, err)
+		return err
+	}
 
 	// Send the email
 	response, err := confirmationEmail.client.Send(

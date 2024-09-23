@@ -54,7 +54,7 @@ func ResendVerificationEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Re
 
 		err := SendConfirmation(db, req.Email, user.ID) // send the email
 		if err != nil {
-			helpers.RespondError(w, "Internal Server Error.", http.StatusInternalServerError)
+			helpers.RespondError(w, "An error occurred while sending confirmation email.", http.StatusBadRequest)
 			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)
 		}
 

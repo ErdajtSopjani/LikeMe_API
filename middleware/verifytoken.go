@@ -51,7 +51,7 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 			}
 
 			// parse the token expires at from string to time
-			tokenExpiresAt, err := time.Parse(time.RFC3339, userToken.ExpiresAt.String())
+			tokenExpiresAt, err := time.Parse("2006-01-02 15:04:05.999999 -0700 MST", userToken.ExpiresAt.String())
 			if err != nil {
 				log.Println("Failed to parse token expiration time: ", err)
 				helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)

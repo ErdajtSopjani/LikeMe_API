@@ -19,7 +19,8 @@ func TestCreateProfile(t *testing.T) {
 		{
 			Name: "Empty fields",
 			ReqHeaders: map[string]string{
-				"Content-Type": "application/json",
+				"Authorization": "jUy2Iti6p3GqQxp0TjwrGA==",
+				"Content-Type":  "application/json",
 			},
 			ReqBody: map[string]string{
 				"username":        "",
