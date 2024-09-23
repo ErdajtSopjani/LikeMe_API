@@ -31,12 +31,24 @@ func VerifyToken(db *gorm.DB) func(next http.Handler) http.Handler {
 
 			type UserToken struct {
 				Token     string
-				CreatedAt time.Time
-				ExpiresAt time.Time
+				CreatedAt *time.Time
+				ExpiresAt *time.Time
 				UserId    int64
 			}
 
 			var userToken UserToken
+
+			// check if token is valid
+			if err := db.Select("token", "expires_at").Where("token = ?", token).First(&userToken).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					log.Println("Unauthorized request from: ", r.RemoteAddr)
+					helpers.RespondError(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
+				} else {
+					helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
+					log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
+				}
+				return
+			}
 
 			// parse the token expires at from string to time
 			tokenExpiresAt, err := time.Parse(time.RFC3339, userToken.ExpiresAt.String())
