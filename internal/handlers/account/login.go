@@ -42,6 +42,13 @@ func Login(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
+		// delete all login codes associated with the user
+		// delete all codes associated with the user
+		if err := db.Where("user_id = ?", twoFactor.UserId).Delete(&handlers.TwoFactor{}).Error; err != nil {
+			helpers.RespondError(w, "Failed to delete old login codes", http.StatusInternalServerError)
+			return
+		}
+
 		/* Create and save auth token */
 		userToken := helpers.GenerateToken()
 		if userToken == "" { // if token generation fails

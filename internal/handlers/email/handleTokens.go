@@ -51,6 +51,12 @@ func HandleLoginCodes(db *gorm.DB, userId int64) (error, int) {
 		ExpiresAt: &handlers.VerificationExpiresAt,
 	}
 
+	// delete all codes associated with the user
+	if err := db.Where("user_id = ?", userId).Delete(&handlers.TwoFactor{}).Error; err != nil {
+		log.Println("ERROR\n\tFailed to delete old login codes: ", err)
+		return errors.New("Failed to delete old login codes: " + err.Error()), 0
+	}
+
 	// save loginCode to the database
 	if err := db.Create(&twoFactor).Error; err != nil {
 		log.Println("ERROR\n\tFailed to save login code: ", err)

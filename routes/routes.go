@@ -35,7 +35,6 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Post("/api/v1/login", account.Login(db))
 	mux.Post("/api/v1/profile", users.CreateProfile(db))
 
-	// TODO: mux.Post("/api/v1/email/resend/login", email.SendLoginEmail(db))
 	mux.Post("/api/v1/email/login", account.LoginUser(db))
 	mux.Post("/api/v1/email/resend/register", email.ResendVerificationEmail(db))
 	mux.Post("/api/v1/email/verify", email.VerifyEmail(db))
