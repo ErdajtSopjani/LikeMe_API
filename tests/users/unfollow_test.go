@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	_users "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/follows"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
@@ -70,5 +70,5 @@ func TestUnfollow(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/api/v1/follow", _users.UnfollowAccount(db))
+	tests.RunTests(db, t, testCases, "/api/v1/follow", follows.UnfollowAccount(db))
 }

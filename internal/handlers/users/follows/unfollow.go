@@ -1,4 +1,4 @@
-package users
+package follows
 
 import (
 	"encoding/json"

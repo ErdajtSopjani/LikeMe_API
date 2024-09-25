@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email/verify"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
@@ -48,5 +48,5 @@ func TestResendVerificationEmail(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/email/resend/register", email.ResendVerificationEmail(db))
+	tests.RunTests(db, t, testCases, "/email/resend/register", verify.ResendVerificationEmail(db))
 }

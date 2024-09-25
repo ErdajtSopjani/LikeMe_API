@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
+	login_email "github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email/login"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
 	"gorm.io/gorm"
 )
@@ -38,7 +38,7 @@ func LoginUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// send login email
-		if err := email.SendLoginEmail(db, user.ID, user.Email); err != nil {
+		if err := login_email.SendLoginEmail(db, user.ID, user.Email); err != nil {
 			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to send login email: %v\n\tError: %s\n\n", user, err)
 			return

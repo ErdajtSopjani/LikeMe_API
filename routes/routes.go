@@ -10,8 +10,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email/verify"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/follows"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/profiles"
 )
 
 func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
@@ -30,16 +31,16 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	/* Post Requests */
 	mux.Post("/api/v1/register", account.RegisterUser(db))
-	mux.Post("/api/v1/follow", users.FollowAccount(db))
+	mux.Post("/api/v1/follow", follows.FollowAccount(db))
 	mux.Post("/api/v1/login", account.Login(db))
-	mux.Post("/api/v1/profile", users.CreateProfile(db))
+	mux.Post("/api/v1/profile", profiles.CreateProfile(db))
 
 	mux.Post("/api/v1/email/login", account.LoginUser(db))
-	mux.Post("/api/v1/email/resend/register", email.ResendVerificationEmail(db))
-	mux.Post("/api/v1/email/verify", email.VerifyEmail(db))
+	mux.Post("/api/v1/email/resend/register", verify.ResendVerificationEmail(db))
+	mux.Post("/api/v1/email/verify", verify.VerifyEmail(db))
 
 	/* Delete Requests */
-	mux.Delete("/api/v1/unfollow", users.UnfollowAccount(db))
+	mux.Delete("/api/v1/unfollow", follows.UnfollowAccount(db))
 	mux.Delete("/api/v1/user", account.DeleteAccount(db))
 
 	/* Put Requests */

@@ -1,4 +1,4 @@
-package email
+package verify
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ import (
 
 // SendConfirmation sends an email verification on account creation
 func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
-	err, confirmationToken := HandleRegisterTokens(db, userId)
+	err, confirmationToken := email.HandleRegisterTokens(db, userId)
 	if err != nil {
 		return err
 	}
@@ -50,13 +51,14 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 `, os.Getenv("FRONTEND_URL"), confirmationToken, os.Getenv("FRONTEND_URL"), confirmationToken)
 
 	// Create a new email
-	confirmationEmail := &Email{
+	confirmationEmail := email.Email{
 		From:             mail.NewEmail("LikeMe", "verify.likeme.dev@gmail.com"),
 		Subject:          "Welcome to LikeMe",
 		To:               mail.NewEmail("User", userEmail),
 		PlainTextContent: "Please verify your email address",
 		HTMLContent:      verifyEmail,
-		client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))}
+		Client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")),
+	}
 
 	// check if the email and user_id match before sending the email
 	// this is more of a fail-safe since we get the userId directly from the database
@@ -66,7 +68,7 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 	}
 
 	// Send the email
-	response, err := confirmationEmail.client.Send(
+	response, err := confirmationEmail.Client.Send(
 		mail.NewSingleEmail(
 			confirmationEmail.From,
 			confirmationEmail.Subject,

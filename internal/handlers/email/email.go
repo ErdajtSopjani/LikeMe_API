@@ -12,5 +12,5 @@ type Email struct {
 	To               *mail.Email
 	PlainTextContent string
 	HTMLContent      string
-	client           *sendgrid.Client
+	Client           *sendgrid.Client
 }

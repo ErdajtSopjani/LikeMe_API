@@ -1,10 +1,11 @@
-package email
+package login_email
 
 import (
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
@@ -12,7 +13,7 @@ import (
 
 // SendLoginEmail sends an email for logging in
 func SendLoginEmail(db *gorm.DB, userId int64, userEmail string) error {
-	err, loginCode := HandleLoginCodes(db, userId)
+	err, loginCode := email.HandleLoginCodes(db, userId)
 	if err != nil {
 		return err
 	}
@@ -51,16 +52,16 @@ func SendLoginEmail(db *gorm.DB, userId int64, userEmail string) error {
 
 </html>`, loginCode, os.Getenv("FRONTEND_URL"), loginCode, os.Getenv("FRONTEND_URL"), loginCode)
 
-	loginEmail := &Email{
+	loginEmail := &email.Email{
 		From:             mail.NewEmail("LikeMe", "verify.likeme.dev@gmail.com"),
 		Subject:          fmt.Sprintf("%d is your code to log in to LikeMe", loginCode),
 		To:               mail.NewEmail("User", userEmail),
 		PlainTextContent: "Use this code to log in",
 		HTMLContent:      loginEmailHTML,
-		client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")),
+		Client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")),
 	}
 
-	response, err := loginEmail.client.Send(
+	response, err := loginEmail.Client.Send(
 		mail.NewSingleEmail(
 			loginEmail.From,
 			loginEmail.Subject,

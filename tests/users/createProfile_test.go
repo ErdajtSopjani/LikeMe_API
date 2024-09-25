@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/profiles"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
@@ -86,5 +86,5 @@ func TestCreateProfile(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/api/v1/profile", users.CreateProfile(db))
+	tests.RunTests(db, t, testCases, "/api/v1/profile", profiles.CreateProfile(db))
 }
