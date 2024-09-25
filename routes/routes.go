@@ -27,7 +27,6 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	/* Get Requests */
 	mux.Get("/is_running", greeting())
-	// MAYBETODO?: mux.Get("/api/v1/is_verified", userHandlers.IsVerified(db))
 
 	/* Post Requests */
 	mux.Post("/api/v1/register", account.RegisterUser(db))
@@ -40,7 +39,7 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Post("/api/v1/email/verify", email.VerifyEmail(db))
 
 	/* Delete Requests */
-	// TODO: mux.Delete("/api/v1/unfollow", userHandlers.UnfollowAccount(db))
+	mux.Delete("/api/v1/unfollow", users.UnfollowAccount(db))
 	mux.Delete("/api/v1/user", account.DeleteAccount(db))
 
 	/* Put Requests */

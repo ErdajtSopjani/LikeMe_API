@@ -28,9 +28,7 @@ func FollowAccount(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if both users exist
-		var count int64
-		db.Table("users").Where("id IN (?, ?)", req.FollowerId, req.FollowingId).Count(&count)
-		if count != 2 {
+		if helpers.UsersExist([]int64{req.FollowerId, req.FollowingId}, db) == false {
 			helpers.RespondError(w, "Invalid follower or following ID", http.StatusBadRequest)
 			return
 		}
