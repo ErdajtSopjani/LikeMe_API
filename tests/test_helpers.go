@@ -25,6 +25,7 @@ type TestCase struct {
 	ExpectedCode int
 	ExpectedBody string
 	QueryParams  string
+	RequestType  string
 }
 
 // SetupTestDB sets up a connection to the test database
@@ -155,7 +156,7 @@ func RunTests(db *gorm.DB, t *testing.T, testCases []TestCase, baseURL string, h
 			}
 
 			// create request with body and headers
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+			req, err := http.NewRequest(tt.RequestType, url, bytes.NewBuffer(reqBody))
 			if err != nil {
 				t.Fatalf("Failed to create request: %v", err)
 			}

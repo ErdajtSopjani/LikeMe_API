@@ -25,6 +25,7 @@ func TestResendVerificationEmail(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Email not found",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:       "Already Verified",
@@ -35,6 +36,7 @@ func TestResendVerificationEmail(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "User already verified",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:       "Successful Resend",
@@ -45,6 +47,7 @@ func TestResendVerificationEmail(t *testing.T) {
 			ExpectedCode: http.StatusOK,
 			ExpectedBody: "Email sent",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 	}
 

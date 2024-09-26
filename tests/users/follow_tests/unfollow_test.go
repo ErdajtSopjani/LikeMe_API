@@ -8,12 +8,10 @@ import (
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
-func TestFollow(t *testing.T) {
-	// connect to test database
-	db := tests.SetupTestDB(t)
+func TestUnfollow(t *testing.T) {
+	db := tests.SetupTestDB(t) // connect to test database
 
-	// setup the db with the required entries to run tests
-	tests.SetupDBEntries("followTests.sql", db, t)
+	tests.SetupDBEntries("followTests.sql", db, t) // setup the db with the required entries to run tests
 
 	testCases := []tests.TestCase{
 		{
@@ -29,6 +27,7 @@ func TestFollow(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid follower or following ID",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name: "Token and User don't match",
@@ -37,14 +36,29 @@ func TestFollow(t *testing.T) {
 				"Content-Type":  "application/json",
 			},
 			ReqBody: map[string]interface{}{
-				"follower_id":  3,
-				"following_id": 2,
+				"follower_id":  2,
+				"following_id": 3,
 			},
 			ExpectedCode: http.StatusUnauthorized,
 			ExpectedBody: "Unauthorized",
 			QueryParams:  "",
+			RequestType:  "POST",
 		}, {
-			Name: "Follow already exists",
+			Name: "Follow doesn't exist",
+			ReqHeaders: map[string]string{
+				"Authorization": "token1",
+				"Content-Type":  "application/json",
+			},
+			ReqBody: map[string]int{
+				"follower_id":  1,
+				"following_id": 3,
+			},
+			ExpectedCode: http.StatusBadRequest,
+			ExpectedBody: "Follow does not exist",
+			QueryParams:  "",
+			RequestType:  "POST",
+		}, {
+			Name: "Successful Unfollow",
 			ReqHeaders: map[string]string{
 				"Authorization": "token2",
 				"Content-Type":  "application/json",
@@ -53,24 +67,12 @@ func TestFollow(t *testing.T) {
 				"follower_id":  2,
 				"following_id": 3,
 			},
-			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "Follow already exists",
+			ExpectedCode: http.StatusOK,
+			ExpectedBody: "Unfollowed successfully",
 			QueryParams:  "",
-		}, {
-			Name: "Successful Follow",
-			ReqHeaders: map[string]string{
-				"Authorization": "token1",
-				"Content-Type":  "application/json",
-			},
-			ReqBody: map[string]int{
-				"follower_id":  1,
-				"following_id": 2,
-			},
-			ExpectedCode: http.StatusCreated,
-			ExpectedBody: "Follow successfully created",
-			QueryParams:  "",
+			RequestType:  "POST",
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/api/v1/follow", follows.FollowAccount(db))
+	tests.RunTests(db, t, testCases, "/api/v1/follow", follows.UnfollowAccount(db))
 }

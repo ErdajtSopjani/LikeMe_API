@@ -23,6 +23,7 @@ func TestLogin(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Empty Code",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:         "Invalid Code",
@@ -31,6 +32,7 @@ func TestLogin(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid Code",
 			QueryParams:  "code=1234",
+			RequestType:  "POST",
 		},
 		{
 			Name:         "Code Expired",
@@ -39,6 +41,7 @@ func TestLogin(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Code Expired",
 			QueryParams:  "code=162508",
+			RequestType:  "POST",
 		},
 		{
 			Name:         "Successful login",
@@ -47,6 +50,7 @@ func TestLogin(t *testing.T) {
 			ExpectedCode: http.StatusOK,
 			ExpectedBody: "",
 			QueryParams:  "code=5692124",
+			RequestType:  "POST",
 		},
 	}
 

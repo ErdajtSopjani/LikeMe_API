@@ -1,4 +1,4 @@
-package users_test
+package profile_tests
 
 import (
 	"net/http"
@@ -31,6 +31,7 @@ func TestCreateProfile(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "All fields are required",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name: "Successful Profile Creation",
@@ -48,6 +49,7 @@ func TestCreateProfile(t *testing.T) {
 			ExpectedCode: http.StatusCreated,
 			ExpectedBody: "User profile created",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name: "User already has a profile",
@@ -63,9 +65,9 @@ func TestCreateProfile(t *testing.T) {
 				"bio":             "null",
 			},
 			ExpectedCode: http.StatusBadRequest,
-			ExpectedBody: "User already has a profile",
+			ExpectedBody: "User already has a profile, you can update it.",
 			QueryParams:  "",
-			// gsa2I2kja3GqQxp0TKhj1A==
+			RequestType:  "POST",
 		},
 		{
 			Name: "Username already taken",
@@ -83,8 +85,9 @@ func TestCreateProfile(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Username already taken",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/api/v1/profile", profiles.CreateProfile(db))
+	tests.RunTests(db, t, testCases, "/api/v1/profile", profiles.ManageProfiles(db))
 }

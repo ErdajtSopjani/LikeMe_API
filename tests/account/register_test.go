@@ -26,6 +26,7 @@ func TestRegisterUser(t *testing.T) {
 			ExpectedCode: http.StatusCreated,
 			ExpectedBody: "User created",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:       "Duplicate email",
@@ -36,6 +37,8 @@ func TestRegisterUser(t *testing.T) {
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Email already taken",
+			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:       "Invalid email format",
@@ -46,6 +49,8 @@ func TestRegisterUser(t *testing.T) {
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid Email",
+			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:       "Missing country code",
@@ -56,6 +61,8 @@ func TestRegisterUser(t *testing.T) {
 			},
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Country Code is required",
+			QueryParams:  "",
+			RequestType:  "POST",
 		},
 	}
 

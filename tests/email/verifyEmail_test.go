@@ -22,6 +22,7 @@ func TestVerifyEmail(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid Token",
 			QueryParams:  "",
+			RequestType:  "POST",
 		},
 		{
 			Name:         "Invalid Token",
@@ -30,6 +31,7 @@ func TestVerifyEmail(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			ExpectedBody: "Invalid Token",
 			QueryParams:  "token=1234",
+			RequestType:  "POST",
 		},
 		{
 			Name:         "Successful Verification",
@@ -38,6 +40,7 @@ func TestVerifyEmail(t *testing.T) {
 			ExpectedCode: http.StatusOK,
 			ExpectedBody: "Email Verified",
 			QueryParams:  "token=123456",
+			RequestType:  "POST",
 		},
 	}
 

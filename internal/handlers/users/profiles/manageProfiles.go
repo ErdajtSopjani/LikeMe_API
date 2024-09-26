@@ -11,7 +11,7 @@ import (
 )
 
 // CreateProfileRequest is the structure of the request body for the createProfile endpoint
-type CreateProfileRequest struct {
+type ProfileRequest struct {
 	Username       string `json:"username"`
 	FirstName      string `json:"first_name"`
 	LastName       string `json:"last_name"`
@@ -19,10 +19,10 @@ type CreateProfileRequest struct {
 	Bio            string `json:"bio"`
 }
 
-// CreateProfile creates the user profile after verification
-func CreateProfile(db *gorm.DB) http.HandlerFunc {
+// ManageProfiles is a route for creating and updating user profiles
+func ManageProfiles(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req CreateProfileRequest
+		var req ProfileRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			helpers.RespondError(w, err.Error(), http.StatusBadRequest)
 			log.Printf("\n\nBAD REQUEST\n\tBad request: %s\n\tError: %s\n\n", req, err)
@@ -54,7 +54,11 @@ func CreateProfile(db *gorm.DB) http.HandlerFunc {
 
 		// check if the user already has a profile
 		if !helpers.CheckUnique(db, "user_id", userProfile.UserId, "user_profiles") {
-			helpers.RespondError(w, "User already has a profile", http.StatusBadRequest)
+			if r.Method == "PUT" {
+				updateProfile(db, userProfile, w)
+				return
+			}
+			helpers.RespondError(w, "User already has a profile, you can update it.", http.StatusBadRequest)
 			return
 		}
 
