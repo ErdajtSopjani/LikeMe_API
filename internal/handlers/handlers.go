@@ -42,6 +42,15 @@ type UserToken struct {
 	ExpiresAt *time.Time `gorm:"type:timestamp;not null;"`
 }
 
+// EmailChange is used to store the email change request and the token for later confirmation
+type EmailChange struct {
+	ID          int64      `gorm:"primaryKey"`
+	UserId      int64      `gorm:"not null"`
+	Email       string     `gorm:"type:varchar(255);unique;not null"`
+	ChangeToken string     `gorm:"type:varchar(32);unique;not null"`
+	CreatedAt   *time.Time `gorm:"type:timestamp;not null"`
+}
+
 // Tag is used to categorize posts and for easier implementation of the algorithm
 type Tag struct {
 	ID   int64  `gorm:"primaryKey"`

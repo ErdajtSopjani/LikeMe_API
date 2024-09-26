@@ -18,6 +18,8 @@ import (
 var app config.AppConfig
 var db *gorm.DB
 
+// TODO: rename users to social in structure
+
 func init() {
 	app.IsProd = false
 
