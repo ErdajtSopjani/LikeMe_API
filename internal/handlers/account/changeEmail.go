@@ -32,16 +32,10 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// get the userId from the token
-		var userToken handlers.UserToken
-		if err := db.Select("user_id").Where("token = ?", r.Header.Get("Authorization")).First(&userToken).Error; err != nil {
-			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
-			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		// check if the user exists
-		if helpers.CheckUnique(db, "id", userToken.UserId, "users") {
-			helpers.RespondError(w, "User does not exist", http.StatusBadRequest)
+		var user handlers.User
+		user, err := helpers.GetUserFromToken(db, r.Header.Get("Authorization"))
+		if err != nil {
+			helpers.RespondError(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
@@ -56,7 +50,7 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 		changeEmail := handlers.EmailChangeRequest{
 			Email:       req.Email,
 			ChangeToken: changeToken,
-			UserId:      userToken.UserId,
+			UserId:      user.ID,
 		}
 		if err := db.Create(&changeEmail).Error; err != nil {
 			helpers.RespondError(w, "Failed to save email change", http.StatusInternalServerError)
@@ -65,13 +59,13 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 
 		// get the old email
 		var oldEmail string
-		if err := db.Table("users").Select("email").Where("id = ?", userToken.UserId).Scan(&oldEmail).Error; err != nil {
+		if err := db.Table("users").Select("email").Where("id = ?", user.ID).Scan(&oldEmail).Error; err != nil {
 			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		// send an email confirmation to change email
-		err := email.SendChangeEmail(changeToken, oldEmail, changeEmail.Email)
+		err = email.SendChangeEmail(changeToken, oldEmail, changeEmail.Email)
 		if err != nil {
 			helpers.RespondError(w, "Failed to send email", http.StatusInternalServerError)
 			return
