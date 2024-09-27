@@ -53,7 +53,7 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// save the new email and token to the database
-		changeEmail := handlers.EmailChange{
+		changeEmail := handlers.EmailChangeRequest{
 			Email:       req.Email,
 			ChangeToken: changeToken,
 			UserId:      userToken.UserId,
@@ -70,7 +70,8 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		err := email.SendChangeEmail(changeEmail.Email, oldEmail)
+		// send an email confirmation to change email
+		err := email.SendChangeEmail(changeToken, oldEmail, changeEmail.Email)
 		if err != nil {
 			helpers.RespondError(w, "Failed to send email", http.StatusInternalServerError)
 			return

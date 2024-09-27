@@ -9,20 +9,20 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
-func SendChangeEmail(token string, userEmail string) error {
+func SendChangeEmail(token string, userEmail string, newEmail string) error {
 
 	var confirmChangeEmail string = fmt.Sprintf(`
 <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
             <h1 style="color: #4CAF50; text-align: center; font-size: 28px; margin-bottom: 20px;">Email Change Requested</h1>
-            <p style="font-size: 16px; color: #555; text-align: center;">You requested an email change.</p>
+            <p style="font-size: 16px; color: #555; text-align: center;">You requested to change your email to: %s.</p>
             <p style="font-size: 16px; color: #555; text-align: center;">
                 To confirm this change, please click the button below.
             </p>
             <div style="text-align: center; margin: 30px 0;">
                 <a href="%s/verify?token=%s" style="background-color: #4CAF50; color: #ffffff; text-decoration: none; padding: 15px 30px; font-size: 16px; border-radius: 5px; display: inline-block;">
-                    Verify Email
+                    Confirm Email Change
                 </a>
             </div>
             <p style="font-size: 14px; color: #777; text-align: center;">
@@ -40,14 +40,14 @@ func SendChangeEmail(token string, userEmail string) error {
         </div>
     </body>
 </html>
-`, os.Getenv("FRONTEND_URL"), token, os.Getenv("FRONTEND_URL"), token)
+`, newEmail, os.Getenv("FRONTEND_URL"), token, os.Getenv("FRONTEND_URL"), token)
 
 	// Create a new email
 	confirmationEmail := Email{
 		From:             mail.NewEmail("LikeMe", "verify.likeme.dev@gmail.com"),
-		Subject:          "Welcome to LikeMe",
+		Subject:          "Email Change Requested",
 		To:               mail.NewEmail("User", userEmail),
-		PlainTextContent: "Please verify your email address",
+		PlainTextContent: "You requested to change your email to: " + newEmail,
 		HTMLContent:      confirmChangeEmail,
 		Client:           sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY")),
 	}

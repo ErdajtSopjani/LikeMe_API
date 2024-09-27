@@ -43,7 +43,6 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Post("/api/v1/email/change", account.ChangeEmail(db))
 	mux.Post("/api/v1/email/login", account.LoginUser(db))
 	mux.Post("/api/v1/email/resend/register", verify.ResendVerificationEmail(db))
-	// TODO: mux.Post("/api/v1/email/verify/change", userHandlers.UpdateUser(db))
 	mux.Post("/api/v1/email/verify/register", verify.VerifyEmail(db))
 
 	/* Delete Requests */
@@ -51,7 +50,6 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	mux.Delete("/api/v1/user", account.DeleteAccount(db))
 
 	/* Put Requests */
-	// TODO: mux.Put("/api/v1/update_user", userHandlers.UpdateUser(db))
 	mux.Put("/api/v1/profile", profiles.ManageProfiles(db)) // same route as create
 
 	return mux

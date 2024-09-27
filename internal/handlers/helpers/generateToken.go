@@ -13,7 +13,7 @@ func GenerateToken() string {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Panicf("\n\nERROR\n\tFailed to generate token\n\tERROR: %v\n\n", err)
+		log.Fatalf("\n\nERROR\n\tFailed to generate token\n\tERROR: %v\n\n", err)
 		return ""
 	}
 	return base64.URLEncoding.EncodeToString(b)

@@ -43,7 +43,7 @@ type UserToken struct {
 }
 
 // EmailChange is used to store the email change request and the token for later confirmation
-type EmailChange struct {
+type EmailChangeRequest struct {
 	ID          int64      `gorm:"primaryKey"`
 	UserId      int64      `gorm:"not null"`
 	Email       string     `gorm:"type:varchar(255);unique;not null"`
