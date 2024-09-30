@@ -11,8 +11,8 @@ import (
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email/verify"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/follows"
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/profiles"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/follows"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/profiles"
 )
 
 func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/users/follows"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/follows"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
 
