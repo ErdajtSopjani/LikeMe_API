@@ -12,6 +12,7 @@ import (
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/email/verify"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/follows"
+	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/messages"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/social/profiles"
 )
 
@@ -28,6 +29,9 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	/* Get Requests */
 	mux.Get("/is_running", greeting())
+
+	// social GET requests
+	mux.Get("/api/v1/messages", messages.GetUserMessages(db))
 
 	/* Post Requests */
 
