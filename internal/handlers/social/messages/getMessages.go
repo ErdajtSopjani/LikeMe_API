@@ -47,7 +47,7 @@ func GetUserMessages(db *gorm.DB) http.HandlerFunc {
 
 		// get all messages between the two users
 		var messages []handlers.Message
-		err = db.Where("sender_id = ? AND receiver_id  = ?", user.UserId, messagedUser.UserId).Or("sender_id = ? AND receiver_id= ?", messagedUser.UserId, user.UserId).Find(&messages).Error
+		err = db.Where("sender_id = ? AND receiver_id  = ?", user.UserId, messagedUser.UserId).Or("sender_id = ? AND receiver_id= ?", messagedUser.UserId, user.UserId).Find(&messages).Order("created_at").Error
 		if err != nil {
 			helpers.RespondError(w, "Failed to get messages", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to get messages: %v\n\tError: %s\n\n", req, err)
