@@ -47,8 +47,15 @@ func ManageProfiles(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// check if any field is empty except for bio
-		if req.Username == "" || req.FirstName == "" || req.LastName == "" {
+		if r.Method != "PUT" && req.Username == "" || req.FirstName == "" || req.LastName == "" {
+			println(r.Method)
 			helpers.RespondError(w, "All fields are required", http.StatusBadRequest)
+			return
+		}
+
+		// check if username is taken by another user
+		if db.Where("username = ? AND user_id != ?", userProfile.Username, userProfile.UserId).First(&handlers.UserProfile{}).Error == nil {
+			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)
 			return
 		}
 
@@ -62,12 +69,6 @@ func ManageProfiles(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// check if the username is taken
-		if !helpers.CheckUnique(db, "username", userProfile.Username, "user_profiles") {
-			helpers.RespondError(w, "Username already taken", http.StatusBadRequest)
-			return
-		}
-
 		// create user profile
 		if err := db.Create(&userProfile).Error; err != nil { // if profile creation fails
 			helpers.RespondError(w, "Internal-Server Error...", http.StatusInternalServerError)
@@ -75,6 +76,17 @@ func ManageProfiles(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		helpers.RespondJSON(w, http.StatusCreated, "User profile created")
+		helpers.RespondJSON(w, http.StatusCreated, "Profile Created")
 	}
+}
+
+// updateProfile updates the user profile after verification
+func updateProfile(db *gorm.DB, userProfile handlers.UserProfile, w http.ResponseWriter) error {
+	if err := db.Model(&handlers.UserProfile{}).Where("user_id = ?", userProfile.UserId).Updates(&userProfile).Error; err != nil {
+		helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
+		return err
+	}
+
+	helpers.RespondJSON(w, http.StatusOK, "Profile Updated")
+	return nil
 }

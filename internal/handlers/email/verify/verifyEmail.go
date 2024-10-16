@@ -3,6 +3,7 @@ package verify
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/helpers"
@@ -21,22 +22,24 @@ func VerifyEmail(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		var verificationToken handlers.VerificationToken
+
 		// check if token is valid
-		if err := db.Where("token = ?", token).First(&handlers.VerificationToken{}).Error; err != nil {
+		if err := db.Where("token = ?", token).First(&verificationToken).Error; err != nil {
 			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, token, err)
 			helpers.RespondError(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 
-		// get the user_id from the associated token
-		verificationToken := handlers.VerificationToken{}
-		if err := db.Where("token = ?", token).First(&verificationToken).Error; err != nil {
-			log.Printf("\n\nERROR\n\tFailed to query database!\n\t%s\n\n", err)
-			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
+		// check if token is expired
+		if verificationToken.ExpiresAt.Before(time.Now()) {
+			log.Printf("\n\nBAD/MALICIOUS\n\tBad credential request from %s: %v\n\tError: %s\n\n", r.RemoteAddr, token, "Token Expired")
+			helpers.RespondError(w, "Token Expired", http.StatusBadRequest)
 			return
 		}
-		userId := verificationToken.UserId
 
+		// set the user as verified
+		userId := verificationToken.UserId
 		if err := db.Model(&handlers.User{}).Where("id = ?", userId).Update("verified", true).Error; err != nil {
 			log.Printf("\n\nERROR\n\tFailed to update user: %v\n\tError: %s\n\n", token, err)
 			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)

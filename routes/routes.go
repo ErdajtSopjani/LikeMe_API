@@ -46,8 +46,8 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	// email Post Requests
 	mux.Post("/api/v1/email/change", account.ChangeEmail(db))
 	mux.Post("/api/v1/email/login", account.LoginUser(db))
-	mux.Post("/api/v1/email/resend/register", verify.ResendVerificationEmail(db))
-	mux.Post("/api/v1/email/verify/register", verify.VerifyEmail(db))
+	mux.Post("/api/v1/email/verify/resend", verify.ResendVerificationEmail(db))
+	mux.Post("/api/v1/email/verify", verify.VerifyEmail(db))
 
 	/* Delete Requests */
 	mux.Delete("/api/v1/unfollow", follows.UnfollowAccount(db))

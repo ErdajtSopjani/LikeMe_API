@@ -14,7 +14,7 @@ import (
 
 // SendConfirmation sends an email verification on account creation
 func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
-	err, confirmationToken := email.HandleRegisterTokens(db, userId)
+	confirmationToken, err := email.HandleRegisterTokens(db, userId)
 	if err != nil {
 		return err
 	}
@@ -49,6 +49,8 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
     </body>
 </html>
 `, os.Getenv("FRONTEND_URL"), confirmationToken, os.Getenv("FRONTEND_URL"), confirmationToken)
+
+	log.Println(confirmationToken)
 
 	// Create a new email
 	confirmationEmail := email.Email{

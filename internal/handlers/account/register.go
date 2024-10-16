@@ -73,7 +73,7 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// send the confirmation email
-		// NOTE: this will also create and save a token available for 10 minutes that the user can use to verify their email
+		// NOTE: this will also create and save a token available for 15 minutes that the user can use to verify their email
 		if err := verify.SendConfirmation(db, user.Email, userId); err != nil {
 			helpers.RespondError(w, "Internal Server Error.", http.StatusInternalServerError)
 			log.Printf("\n\nERROR\n\tFailed to send confirmation email: %v\n\tError: %s\n\n", req, err)

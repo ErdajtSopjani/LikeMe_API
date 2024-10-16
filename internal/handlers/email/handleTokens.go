@@ -10,12 +10,12 @@ import (
 )
 
 // HandleRegisterTokens generates a token for email verification and saves it to the database
-func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
+func HandleRegisterTokens(db *gorm.DB, userId int64) (string, error) {
 	// generate a new token
 	confirmationToken := helpers.GenerateToken()
 	if confirmationToken == "" {
 		log.Printf("\n\nERROR\n\tFailed to generate token for user: %v\n\n", userId)
-		return errors.New("Failed to generate token for user: "), ""
+		return "", errors.New("Failed to generate token for user: ")
 	}
 
 	// create and save the token that's available for 10 minutes
@@ -29,10 +29,10 @@ func HandleRegisterTokens(db *gorm.DB, userId int64) (error, string) {
 	// save confirmationToken to the database
 	if err := db.Create(&verificationToken).Error; err != nil {
 		log.Println("ERROR\n\tFailed to save verification token: ", err)
-		return errors.New("Failed to create/save verification token: " + err.Error()), ""
+		return "", errors.New("Failed to create/save verification token: " + err.Error())
 	}
 
-	return nil, confirmationToken
+	return confirmationToken, nil
 }
 
 // HandleLoginCodes generates a 6 digit code used for email auth and saves it to the database
