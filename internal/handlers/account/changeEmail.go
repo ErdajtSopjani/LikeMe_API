@@ -25,17 +25,23 @@ func ChangeEmail(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// check if email is already taken
-		if !helpers.CheckUnique(db, "email", req.Email, "users") {
-			helpers.RespondError(w, "Email already taken", http.StatusBadRequest)
-			return
-		}
-
 		// get the userId from the token
 		var user handlers.User
 		user, err := helpers.GetUserFromToken(db, r.Header.Get("Authorization"))
 		if err != nil {
 			helpers.RespondError(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// check if the email is the same
+		if user.Email == req.Email {
+			helpers.RespondJSON(w, http.StatusBadRequest, "Email is the same")
+			return
+		}
+
+		// check if email is already taken
+		if !helpers.CheckUnique(db, "email", req.Email, "users") {
+			helpers.RespondJSON(w, http.StatusBadRequest, "Email already taken")
 			return
 		}
 

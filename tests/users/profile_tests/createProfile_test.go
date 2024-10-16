@@ -47,7 +47,7 @@ func TestCreateProfile(t *testing.T) {
 				"bio":             "null",
 			},
 			ExpectedCode: http.StatusCreated,
-			ExpectedBody: "User profile created",
+			ExpectedBody: "Profile Created",
 			QueryParams:  "",
 			RequestType:  "POST",
 		},
