@@ -77,8 +77,8 @@ func SendConfirmation(db *gorm.DB, userEmail string, userId int64) error {
 			confirmationEmail.HTMLContent),
 	)
 
-	if err != nil {
-		log.Printf("\n\nERROR\n\tUnable to send confirmation email\n\tERROR: %v\n\n", err)
+	if err != nil || response.StatusCode != 202 {
+		log.Printf("\n\nERROR\n\tUnable to send confirmation email\n\tERROR: %v\n\tSTATUS CODE: %v\n\n", err, response.StatusCode)
 		return err
 	} else {
 		log.Println(response.StatusCode, ": Email confirmation sent: %v", confirmationEmail.To)

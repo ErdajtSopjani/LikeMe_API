@@ -28,7 +28,7 @@ type TestCase struct {
 	RequestType  string
 }
 
-// SetupTestDB sets up a connection to the test database
+// InitTestDB makes a connection to the test database
 func InitTestDB() *gorm.DB {
 	// get test-db variables from env
 	dbHost := os.Getenv("DB_HOST")
@@ -61,7 +61,7 @@ func InitTestDB() *gorm.DB {
 	return db
 }
 
-// SetupDB sets up the environment for the tests
+// SetupTestDB sets up the database env vars with the current test
 func SetupTestDB(t *testing.T) *gorm.DB {
 	err := godotenv.Load("../../.env")
 	if err != nil {

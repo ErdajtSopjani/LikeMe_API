@@ -37,6 +37,7 @@ func initDB() (*gorm.DB, error) {
 	dbSSLMode := os.Getenv("DB_SSLMODE")
 
 	/* create db connection string */
+	fmt.Printf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s\n", dbHost, dbPort, dbUser, dbName, dbPassword, dbSSLMode)
 	db, err := gorm.Open(
 		postgres.Open(
 			fmt.Sprintf(
