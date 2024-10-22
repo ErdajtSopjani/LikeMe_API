@@ -24,7 +24,7 @@ INSERT INTO users (
     country_code,
     verified
 ) VALUES (
-    2,
+    3,
     'testest123@testmail.com',
     'RKS',
     TRUE
@@ -34,6 +34,6 @@ INSERT INTO user_tokens (
     user_id,
     token
 ) VALUES (
-    2,
+    3,
     'jUy2Iti6p3GqQxp0Tj1234=='
 );

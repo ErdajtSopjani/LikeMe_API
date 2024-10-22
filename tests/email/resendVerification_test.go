@@ -13,6 +13,7 @@ func TestResendVerificationEmail(t *testing.T) {
 	db := tests.SetupTestDB(t)
 
 	// setup the db with the required entries to run tests
+	tests.CleanupTestDB(db)
 	tests.SetupDBEntries("resendVerificationTests.sql", db, t)
 
 	testCases := []tests.TestCase{

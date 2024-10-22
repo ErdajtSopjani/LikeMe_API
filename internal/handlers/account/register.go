@@ -28,18 +28,24 @@ func RegisterUser(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
-		// validate email format using regex
-		emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-		if !regexp.MustCompile(emailRegex).MatchString(req.Email) {
+		// check if email is in valid format and exists
+		if !regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(req.Email) {
 			helpers.RespondError(w, "Invalid Email", http.StatusBadRequest)
-			log.Printf("Invalid email format: %v\n", req.Email)
+		}
+		isEmailValid, err := helpers.IsEmailValid(req.Email)
+		if err != nil {
+			helpers.RespondError(w, "Internal Server Error", http.StatusInternalServerError)
+			log.Printf("\n\nERROR\n\tFailed to validate email: %v\n\tError: %s\n\n", req, err)
+			return
+		}
+		if !isEmailValid {
+			helpers.RespondError(w, "Invalid Email", http.StatusBadRequest)
 			return
 		}
 
 		// check if the country_code is missing
 		if req.CountryCode == "" {
 			helpers.RespondError(w, "Country Code is required", http.StatusBadRequest)
-			log.Printf("Missing Country Code")
 			return
 		}
 

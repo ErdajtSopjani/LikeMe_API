@@ -30,7 +30,6 @@ func Login(db *gorm.DB) http.HandlerFunc {
 		}
 
 		if twoFactor.ExpiresAt.Before(time.Now()) {
-			log.Println("Code expired at:", twoFactor.ExpiresAt)
 			helpers.RespondError(w, "Code Expired", http.StatusBadRequest)
 			return
 		}

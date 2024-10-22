@@ -7,6 +7,7 @@ import (
 	_middleware "github.com/ErdajtSopjani/LikeMe_API/middleware"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"gorm.io/gorm"
 
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
@@ -21,6 +22,16 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	/* Middleware */
 	// use cors protection in production
+	corsConfig := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Replace with your React app's URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+	mux.Use(corsConfig.Handler)
+
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	mux.Use(_middleware.NoSurf(app.IsProd))
@@ -35,9 +46,9 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 
 	/* Post Requests */
 
-	// account Post Requests
-	mux.Post("/api/v1/register", account.RegisterUser(db))
-	mux.Post("/api/v1/login", account.Login(db))
+	// auth Post Requests
+	mux.Post("/api/v1/auth/register", account.RegisterUser(db))
+	mux.Post("/api/v1/auth/login", account.Login(db))
 
 	// social Post Requests
 	mux.Post("/api/v1/follow", follows.FollowAccount(db))

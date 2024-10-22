@@ -62,7 +62,7 @@ func SendChangeEmail(token string, userEmail string, newEmail string) error {
 			confirmationEmail.HTMLContent),
 	)
 
-	if err != nil {
+	if err != nil || response.StatusCode != 202 {
 		log.Printf("\n\nERROR\n\tUnable to send confirmation email\n\tERROR: %v\n\n", err)
 		return err
 	} else {
