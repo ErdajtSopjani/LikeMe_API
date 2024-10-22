@@ -10,7 +10,7 @@ import (
 func RespondError(w http.ResponseWriter, message any, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]any{"error": message, "status": status})
+	json.NewEncoder(w).Encode(map[string]any{"message": message, "error": message, "status": status})
 	log.Printf("Error: %s, Status: %d", message, status)
 }
 

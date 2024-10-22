@@ -1,7 +1,6 @@
 package account
 
 import (
-	"log"
 	"net/http"
 	"time"
 

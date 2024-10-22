@@ -11,6 +11,7 @@ import (
 // Test for RegisterUser handler
 func TestRegisterUser(t *testing.T) {
 	db := tests.SetupTestDB(t) // connect to db
+	tests.CleanupTestDB(db)
 
 	// setup db with the required entries to run tests
 	tests.SetupDBEntries("registerTests.sql", db, t)
@@ -20,7 +21,7 @@ func TestRegisterUser(t *testing.T) {
 			Name:       "Create valid user",
 			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
-				"email":        "erdajttest@gmail.com",
+				"email":        "erdajtsopjani.tech@gmail.com",
 				"country_code": "RKS",
 			},
 			ExpectedCode: http.StatusCreated,
@@ -56,7 +57,7 @@ func TestRegisterUser(t *testing.T) {
 			Name:       "Missing country code",
 			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
-				"email":        "test@example.com",
+				"email":        "verify.likeme.dev@gmail.com",
 				"country_code": "",
 			},
 			ExpectedCode: http.StatusBadRequest,
