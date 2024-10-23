@@ -19,7 +19,7 @@ type RegisterRequest struct {
 }
 
 // RegisterUser is a handler for registering a new user and sending an email confirmation
-func RegisterUser(db *gorm.DB, app config.AppConfig) http.HandlerFunc {
+func RegisterUser(db *gorm.DB, app *config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Parse the req from the request body
 		var req RegisterRequest

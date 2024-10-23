@@ -47,7 +47,7 @@ func Routes(app *config.AppConfig, db *gorm.DB) http.Handler {
 	/* Post Requests */
 
 	// auth Post Requests
-	mux.Post("/api/v1/auth/register", account.RegisterUser(db))
+	mux.Post("/api/v1/auth/register", account.RegisterUser(db, app))
 	mux.Post("/api/v1/auth/login", account.Login(db))
 
 	// social Post Requests
