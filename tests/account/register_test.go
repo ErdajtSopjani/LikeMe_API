@@ -4,9 +4,12 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ErdajtSopjani/LikeMe_API/internal/config"
 	"github.com/ErdajtSopjani/LikeMe_API/internal/handlers/account"
 	"github.com/ErdajtSopjani/LikeMe_API/tests"
 )
+
+var app config.AppConfig
 
 // Test for RegisterUser handler
 func TestRegisterUser(t *testing.T) {
@@ -21,7 +24,7 @@ func TestRegisterUser(t *testing.T) {
 			Name:       "Create valid user",
 			ReqHeaders: map[string]string{},
 			ReqBody: map[string]string{
-				"email":        "erdajtsopjani.tech@gmail.com",
+				"email":        "validuser@gmail.com",
 				"country_code": "RKS",
 			},
 			ExpectedCode: http.StatusCreated,
@@ -67,5 +70,7 @@ func TestRegisterUser(t *testing.T) {
 		},
 	}
 
-	tests.RunTests(db, t, testCases, "/register", account.RegisterUser(db))
+	app.IsProd = false
+	app.IsTest = true
+	tests.RunTests(db, t, testCases, "/register", account.RegisterUser(db, app))
 }

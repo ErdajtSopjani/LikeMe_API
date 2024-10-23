@@ -27,6 +27,7 @@ func IsEmailValid(email string) (bool, error) {
 		return false, err
 	}
 
+	println(string(body))
 	// check if email is valid
 	if jsonResp["deliverability"] == "DELIVERABLE" {
 		return true, nil

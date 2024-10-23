@@ -1,6 +1,7 @@
 package api
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,6 +21,7 @@ var db *gorm.DB
 
 func init() {
 	app.IsProd = false
+	app.IsTest = flag.Lookup("test.v") != nil
 
 	err := godotenv.Load()
 	if err != nil {

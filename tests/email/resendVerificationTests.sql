@@ -4,7 +4,7 @@ INSERT INTO users (
     country_code,
     verified
 ) VALUES (
-    2,
+    53287,
     'erdajtsopjani.tech@gmail.com',
     'RKS',
     FALSE
@@ -16,7 +16,7 @@ INSERT INTO users (
     country_code,
     verified
 ) VALUES (
-    3,
+    1283,
     'verified-email@gmail.com',
     'RKS',
     TRUE

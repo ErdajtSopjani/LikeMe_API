@@ -132,10 +132,21 @@ func CleanupTestDB(db *gorm.DB) {
 
 	// Truncate all tables and reset the primary key sequences
 	for _, table := range tables {
-		err := db.Exec("TRUNCATE TABLE " + table + " RESTART IDENTITY CASCADE").Error
+		err := db.Exec("DELETE FROM " + table).Error
 		if err != nil {
-			log.Fatalf("Failed to truncate table %s: %v", table, err)
+			log.Printf("Failed to delete records from table %s: %v", table, err)
 		}
+		err = db.Exec("ALTER SEQUENCE " + table + "_id_seq RESTART WITH 1").Error
+		if err != nil {
+			log.Printf("Failed to reset sequence for table %s: %v", table, err)
+		}
+	}
+
+	// print each table with the number of rows to confirm that the tables are empty
+	for _, table := range tables {
+		var count int64
+		db.Table(table).Count(&count)
+		fmt.Printf("Table %s has %d rows\n", table, count)
 	}
 }
 
